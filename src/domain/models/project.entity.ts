@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 import { Step } from "./step.entity";
 
@@ -8,15 +8,18 @@ export class Project {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
+    @ManyToMany(() => User, (user) => user.projects)
+    users: User[]
+
     @Column()
     title: string
 
-    @Column('uuid')
-    userId: string
-
-    @ManyToOne(() => User, (user) => user.projects, { onDelete: 'CASCADE' })
-    user: User
-
     @OneToMany(() => Step, (step) => step.project)
     steps: Step[]
+
+    @ManyToOne(() => User, (user) => user.createdProjects, { onDelete: 'CASCADE' })
+    createdBy: User
+
+    @Column('uuid')
+    createdById: string
 }
