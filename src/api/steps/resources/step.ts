@@ -12,10 +12,10 @@ export class StepResource {
     @ApiProperty()
     readonly title: string
 
-    @ApiProperty({ nullable: true })
+    @ApiProperty()
     readonly details: string
 
-    @ApiProperty({ nullable: true })
+    @ApiProperty()
     readonly assets: string[]
 
     @ApiProperty()
