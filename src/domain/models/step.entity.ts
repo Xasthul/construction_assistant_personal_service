@@ -16,10 +16,10 @@ export class Step {
     @Column()
     title: string
 
-    @Column({ nullable: true })
+    @Column({ default: '' })
     details: string
 
-    @Column('varchar', { array: true, nullable: true })
+    @Column('varchar', { array: true, default: [] })
     assets: string[]
 
     @Column()
