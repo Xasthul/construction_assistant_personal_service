@@ -9,8 +9,9 @@ import * as bcrypt from 'bcryptjs';
 export class UsersService {
     constructor(@InjectRepository(User) private usersRepository: Repository<User>) { }
 
-    async create(createUserDto: CreateUserDto) {
+    async create (createUserDto: CreateUserDto) {
         const user = new User();
+        user.name = createUserDto.name;
         user.email = createUserDto.email;
 
         const salt = await bcrypt.genSalt();
@@ -18,7 +19,7 @@ export class UsersService {
         return await this.usersRepository.save(user);
     }
 
-    async findOneByEmail(email: string) {
+    async findOneByEmail (email: string) {
         const user = await this.usersRepository.findOneBy({ email: email });
         if (!user) {
             throw new UnauthorizedException();
@@ -26,7 +27,7 @@ export class UsersService {
         return user;
     }
 
-    async exists(email: string): Promise<boolean> {
+    async exists (email: string): Promise<boolean> {
         return await this.usersRepository.existsBy({ email: email });
     }
 }
