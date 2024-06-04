@@ -22,6 +22,7 @@ export class StepsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Get all steps' })
     @ApiResponse({ status: HttpStatus.OK, type: StepItemsResource })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project not found" })
     async findAll (
         @Query() projectIdParam: ProjectIdParam,
         @RequestUser() user: JwtPayload,
@@ -42,7 +43,7 @@ export class StepsController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create new step' })
     @ApiResponse({ status: HttpStatus.CREATED, type: StepResource })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project or site with such id was not found" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project with such id was not found" })
     create (
         @Body() createStepDto: CreateStepDto,
         @RequestUser() user: JwtPayload,
@@ -90,7 +91,9 @@ export class StepsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Complete step' })
     @ApiResponse({ status: HttpStatus.OK })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step not found' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step or User not found' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Step with previous priority not found' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Step with previous priority not completed' })
     complete (
         @Query() projectIdParam: ProjectIdParam,
         @Param() stepIdParam: StepIdParam,

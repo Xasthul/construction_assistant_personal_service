@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Step } from '../../domain/models/step.entity';
 import { Repository } from 'typeorm';
@@ -120,6 +120,25 @@ export class StepsService {
         });
         if (!step) {
             throw new NotFoundException('Step not found');
+        }
+        const stepPriority = step.priority;
+        if (stepPriority !== 0) {
+            const stepWithPreviousPriority = await this.stepRepository.findOne({
+                where: {
+                    project: {
+                        id: projectId,
+                        users: [{ id: userId }],
+                    },
+                    priority: stepPriority - 1,
+                },
+                relations: { project: false },
+            });
+            if (!stepWithPreviousPriority) {
+                throw new InternalServerErrorException('Step with previous priority not found');
+            }
+            if (!stepWithPreviousPriority.isCompleted) {
+                throw new ForbiddenException('Previous step is not completed');
+            }
         }
         const user = await this.userRepository.findOne({
             where: { id: userId },
