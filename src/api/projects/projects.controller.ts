@@ -22,7 +22,7 @@ export class ProjectsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Get all user's projects" })
     @ApiResponse({ status: HttpStatus.OK, type: ProjectItemsResource })
-    async findAll(@RequestUser() user: JwtPayload) {
+    async findAll (@RequestUser() user: JwtPayload) {
         const projects = await this.projectsService.findAll(user.id);
 
         return ProjectItemsResource.from(
@@ -36,7 +36,8 @@ export class ProjectsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Get user's project by id" })
     @ApiResponse({ status: HttpStatus.OK, type: ProjectItemResource })
-    async findById(
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project not found" })
+    async findById (
         @Param() projectIdParam: ProjectIdParam,
         @RequestUser() user: JwtPayload,
     ) {
@@ -51,7 +52,8 @@ export class ProjectsController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: "Create new project" })
     @ApiResponse({ status: HttpStatus.CREATED })
-    create(
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "User not found" })
+    create (
         @Body() createProjectDto: CreateProjectDto,
         @RequestUser() user: JwtPayload,
     ) {
@@ -63,7 +65,7 @@ export class ProjectsController {
     @ApiOperation({ summary: "Update user's project" })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
-    update(
+    update (
         @Param() projectIdParam: ProjectIdParam,
         @Body() updateProjectDto: UpdateProjectDto,
         @RequestUser() user: JwtPayload,
@@ -76,7 +78,7 @@ export class ProjectsController {
     @ApiOperation({ summary: "Remove user's project" })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
-    delete(
+    delete (
         @Param() projectIdParam: ProjectIdParam,
         @RequestUser() user: JwtPayload,
     ) {
