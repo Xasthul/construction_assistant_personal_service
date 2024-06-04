@@ -7,11 +7,11 @@ export class Step {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
-    @Column('uuid')
-    projectId: string
-
     @ManyToOne(() => Project, (project) => project.steps, { onDelete: 'CASCADE' })
     project: Project
+
+    @Column('uuid')
+    projectId: string
 
     @Column()
     title: string

@@ -22,11 +22,23 @@ export class StepsService {
         projectId: string,
         userId: string
     ): Promise<Step[]> {
+        const project = await this.projectRepository.findOne({
+            where: {
+                id: projectId,
+                users: [{ id: userId }],
+            },
+            relations: { users: false, steps: false, },
+        });
+        if (!project) {
+            throw new NotFoundException('Project not found');
+        }
+        // if (!(project.users.some(e => e.id === userId))) {
+        //     throw new ForbiddenException('Access to project denied');
+        // }
         return await this.stepRepository.find({
             where: {
                 project: {
                     id: projectId,
-                    userId: userId,
                 },
             }
         });
@@ -36,9 +48,9 @@ export class StepsService {
         const project = await this.projectRepository.findOne({
             where: {
                 id: createStepDto.projectId,
-                userId: userId,
+                users: [{ id: userId }],
             },
-            relations: { user: false, steps: false },
+            relations: { users: false, steps: false },
         });
         if (!project) {
             throw new NotFoundException('Project with such id was not found');
@@ -62,7 +74,7 @@ export class StepsService {
             where: {
                 project: {
                     id: projectId,
-                    userId: userId,
+                    users: [{ id: userId }],
                 },
                 id: stepId,
             },
@@ -81,8 +93,8 @@ export class StepsService {
     ): Promise<void> {
         const result = await this.stepRepository.delete({
             project: {
-                userId: userId,
                 id: projectId,
+                users: [{ id: userId }],
             },
             id: stepId,
         });
@@ -100,7 +112,7 @@ export class StepsService {
             where: {
                 project: {
                     id: projectId,
-                    userId: userId,
+                    users: [{ id: userId }],
                 },
                 id: stepId,
             },
