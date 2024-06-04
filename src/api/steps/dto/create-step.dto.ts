@@ -7,10 +7,6 @@ export class CreateStepDto {
     @ApiProperty()
     readonly projectId: string
 
-    @IsUUID()
-    @ApiProperty()
-    readonly siteId: string
-
     @IsString()
     @IsNotEmpty()
     @ApiProperty()

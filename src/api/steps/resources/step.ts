@@ -7,6 +7,9 @@ export class StepResource {
     readonly id: string
 
     @ApiProperty()
+    readonly projectId: string
+
+    @ApiProperty()
     readonly title: string
 
     @ApiProperty()
@@ -18,19 +21,16 @@ export class StepResource {
     @ApiProperty()
     readonly isCompleted: boolean
 
-    @ApiProperty()
-    readonly siteId: string
-
     constructor(step: Step) {
         this.id = step.id;
+        this.projectId = step.projectId;
         this.title = step.title;
         this.details = step.details;
         this.assets = step.assets;
         this.isCompleted = step.isCompleted;
-        this.siteId = step.siteId;
     }
 
-    static from(step: Step): StepResource {
+    static from (step: Step): StepResource {
         return new StepResource(step);
     }
 }

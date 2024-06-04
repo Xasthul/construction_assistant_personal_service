@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Step } from '../../domain/models/step.entity';
 import { StepsController } from './steps.controller';
 import { StepsService } from './steps.service';
-import { Site } from 'src/domain/models/site.entity';
+import { Project } from 'src/domain/models/project.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Site, Step])],
+    imports: [TypeOrmModule.forFeature([Project, Step])],
     controllers: [StepsController],
     providers: [StepsService],
 })

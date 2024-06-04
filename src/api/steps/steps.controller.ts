@@ -8,7 +8,6 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { StepItemsResource } from './resources/step-items';
 import { StepResource } from './resources/step';
 import { ProjectIdParam } from '../projects/dto/project-id.param';
-import { SiteIdParam } from '../sites/dto/site-id.param';
 import { RequestUser } from '../common/decorators/request-user.decorator';
 import { JwtPayload } from '../auth/dto/jwt-payload';
 
@@ -23,14 +22,12 @@ export class StepsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Get all steps' })
     @ApiResponse({ status: HttpStatus.OK, type: StepItemsResource })
-    async findAll(
+    async findAll (
         @Query() projectIdParam: ProjectIdParam,
-        @Query() siteIdParam: SiteIdParam,
         @RequestUser() user: JwtPayload,
     ) {
         const steps = await this.stepsService.findAll(
             projectIdParam.projectId,
-            siteIdParam.siteId,
             user.id,
         );
 
@@ -46,7 +43,7 @@ export class StepsController {
     @ApiOperation({ summary: 'Create new step' })
     @ApiResponse({ status: HttpStatus.CREATED, type: StepResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project or site with such id was not found" })
-    create(
+    create (
         @Body() createStepDto: CreateStepDto,
         @RequestUser() user: JwtPayload,
     ) {
@@ -58,16 +55,14 @@ export class StepsController {
     @ApiOperation({ summary: 'Update step' })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step not found' })
-    update(
+    update (
         @Query() projectIdParam: ProjectIdParam,
-        @Query() siteIdParam: SiteIdParam,
         @Param() stepIdParam: StepIdParam,
         @Body() updateStepDto: UpdateStepDto,
         @RequestUser() user: JwtPayload,
     ) {
         return this.stepsService.update(
             projectIdParam.projectId,
-            siteIdParam.siteId,
             stepIdParam.stepId,
             updateStepDto,
             user.id,
@@ -79,15 +74,13 @@ export class StepsController {
     @ApiOperation({ summary: 'Remove step' })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step not found' })
-    delete(
+    delete (
         @Query() projectIdParam: ProjectIdParam,
-        @Query() siteIdParam: SiteIdParam,
         @Param() stepIdParam: StepIdParam,
         @RequestUser() user: JwtPayload,
     ) {
         return this.stepsService.delete(
             projectIdParam.projectId,
-            siteIdParam.siteId,
             stepIdParam.stepId,
             user.id,
         );
@@ -98,15 +91,13 @@ export class StepsController {
     @ApiOperation({ summary: 'Complete step' })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step not found' })
-    complete(
+    complete (
         @Query() projectIdParam: ProjectIdParam,
-        @Query() siteIdParam: SiteIdParam,
         @Param() stepIdParam: StepIdParam,
         @RequestUser() user: JwtPayload,
     ) {
         return this.stepsService.complete(
             projectIdParam.projectId,
-            siteIdParam.siteId,
             stepIdParam.stepId,
             user.id,
         );

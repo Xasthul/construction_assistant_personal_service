@@ -8,7 +8,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function bootstrap() {
+async function bootstrap () {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter()
@@ -17,8 +17,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Construction Assistant')
-    .setDescription('Construction Assistant Documentation')
+    .setTitle('Construction Assistant Perosnal')
+    .setDescription('Construction Assistant Perosnal Documentation')
     .setVersion('1.0')
     .addBearerAuth(
       {

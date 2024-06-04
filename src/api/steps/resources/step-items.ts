@@ -13,7 +13,7 @@ export class StepItemsResource {
         this.data = steps;
     }
 
-    static from(steps: StepResource[]): StepItemsResource {
+    static from (steps: StepResource[]): StepItemsResource {
         return new StepItemsResource(steps);
     }
 }

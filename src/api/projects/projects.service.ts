@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../../domain/models/project.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 
@@ -12,20 +12,20 @@ export class ProjectsService {
         private projectRepository: Repository<Project>
     ) { }
 
-    async findAll(userId: string): Promise<Project[]> {
+    async findAll (userId: string): Promise<Project[]> {
         return await this.projectRepository.find({
             where: { user: { id: userId } },
-            relations: { user: false, sites: false },
+            relations: { user: false, steps: false },
         });
     }
 
-    async findById(projectId: string, userId: string): Promise<Project> {
+    async findById (projectId: string, userId: string): Promise<Project> {
         const project = await this.projectRepository.findOne({
             where: {
                 id: projectId,
                 userId: userId,
             },
-            relations: { user: false, sites: false },
+            relations: { user: false, steps: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -33,14 +33,14 @@ export class ProjectsService {
         return project;
     }
 
-    async create(createProjectDto: CreateProjectDto, userId: string): Promise<void> {
+    async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
         const project = new Project();
         project.title = createProjectDto.title;
         project.userId = userId;
         await this.projectRepository.save(project);
     }
 
-    async update(
+    async update (
         projectId: string,
         updateProjectDto: UpdateProjectDto,
         userId: string,
@@ -50,7 +50,7 @@ export class ProjectsService {
                 id: projectId,
                 userId: userId,
             },
-            relations: { user: false, sites: false },
+            relations: { user: false, steps: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -58,7 +58,7 @@ export class ProjectsService {
         await this.projectRepository.update(projectId, updateProjectDto);
     }
 
-    async delete(projectId: string, userId: string): Promise<void> {
+    async delete (projectId: string, userId: string): Promise<void> {
         const result = await this.projectRepository.delete({ userId: userId, id: projectId });
         if (result.affected < 1) {
             throw new NotFoundException();

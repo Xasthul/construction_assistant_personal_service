@@ -3,7 +3,6 @@ import { ProjectsModule } from './projects/projects.module';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StepsModule } from './steps/steps.module';
-import { SitesModule } from './sites/sites.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
@@ -20,13 +19,12 @@ import { typeOrmAsyncConfig } from 'src/config/type-orm-async-config';
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     AuthModule,
     ProjectsModule,
-    SitesModule,
     StepsModule,
     UsersModule,
   ],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure (consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*')
   }
 }

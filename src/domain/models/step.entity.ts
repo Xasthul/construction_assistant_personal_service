@@ -1,11 +1,17 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Site } from "./site.entity";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Project } from "./project.entity";
 
 @Entity('steps')
 export class Step {
 
     @PrimaryGeneratedColumn('uuid')
     id: string
+
+    @Column('uuid')
+    projectId: string
+
+    @ManyToOne(() => Project, (project) => project.steps, { onDelete: 'CASCADE' })
+    project: Project
 
     @Column()
     title: string
@@ -18,10 +24,4 @@ export class Step {
 
     @Column({ default: false })
     isCompleted: boolean
-
-    @Column('uuid')
-    siteId: string
-
-    @ManyToOne(() => Site, (site) => site.steps, { onDelete: 'CASCADE' })
-    site: Site
 }
