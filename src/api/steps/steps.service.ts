@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateStepDto } from './dto/create-step.dto';
 import { UpdateStepDto } from './dto/update-step.dto';
 import { Project } from 'src/domain/models/project.entity';
+import { User } from 'src/domain/models/user.entity';
 
 @Injectable()
 export class StepsService {
@@ -12,7 +13,9 @@ export class StepsService {
         @InjectRepository(Project)
         private projectRepository: Repository<Project>,
         @InjectRepository(Step)
-        private stepRepository: Repository<Step>
+        private stepRepository: Repository<Step>,
+        @InjectRepository(User)
+        private userRepository: Repository<User>
     ) { }
 
     async findAll (
@@ -41,10 +44,11 @@ export class StepsService {
             throw new NotFoundException('Project with such id was not found');
         }
         const step = new Step();
+        step.projectId = project.id;
         step.title = createStepDto.title;
         step.details = createStepDto.details;
         step.assets = createStepDto.assets;
-        step.projectId = project.id;
+        step.priority = createStepDto.priority;
         await this.stepRepository.save(step);
     }
 
@@ -103,8 +107,21 @@ export class StepsService {
             relations: { project: false },
         });
         if (!step) {
-            throw new NotFoundException();
+            throw new NotFoundException('Step not found');
         }
-        await this.stepRepository.update(stepId, { isCompleted: true });
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { projects: false },
+        });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        await this.stepRepository.update(
+            stepId,
+            {
+                isCompleted: true,
+                completedBy: user.name,
+            },
+        );
     }
 }
