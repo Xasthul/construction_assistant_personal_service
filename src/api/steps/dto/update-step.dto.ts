@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator"
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class UpdateStepDto {
 
@@ -20,4 +20,9 @@ export class UpdateStepDto {
     @IsOptional()
     @ApiProperty({ description: 'Array of base64 encoded assets' })
     readonly assets: string[]
+
+    @IsInt()
+    @IsOptional()
+    @ApiProperty()
+    readonly priority: number
 }
