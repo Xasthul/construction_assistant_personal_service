@@ -22,6 +22,12 @@ export class Step {
     @Column('varchar', { array: true, nullable: true })
     assets: string[]
 
+    @Column()
+    priority: number
+
     @Column({ default: false })
     isCompleted: boolean
+
+    @Column({ nullable: true })
+    completedBy: string
 }
