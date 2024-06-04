@@ -4,18 +4,21 @@ import { Project } from '../../domain/models/project.entity';
 import { Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { User } from 'src/domain/models/user.entity';
 
 @Injectable()
 export class ProjectsService {
     constructor(
         @InjectRepository(Project)
-        private projectRepository: Repository<Project>
+        private projectRepository: Repository<Project>,
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
     ) { }
 
     async findAll (userId: string): Promise<Project[]> {
         return await this.projectRepository.find({
-            where: { user: { id: userId } },
-            relations: { user: false, steps: false },
+            where: { users: [{ id: userId }] },
+            relations: { users: false, steps: false },
         });
     }
 
@@ -23,9 +26,9 @@ export class ProjectsService {
         const project = await this.projectRepository.findOne({
             where: {
                 id: projectId,
-                userId: userId,
+                users: [{ id: userId }]
             },
-            relations: { user: false, steps: false },
+            relations: { users: false, steps: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -34,9 +37,14 @@ export class ProjectsService {
     }
 
     async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
+        const user = await this.userRepository.findOne({ where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
         const project = new Project();
         project.title = createProjectDto.title;
-        project.userId = userId;
+        project.users = [user];
+        project.createdById = user.id;
         await this.projectRepository.save(project);
     }
 
@@ -48,9 +56,9 @@ export class ProjectsService {
         const project = await this.projectRepository.findOne({
             where: {
                 id: projectId,
-                userId: userId,
+                users: [{ id: userId }]
             },
-            relations: { user: false, steps: false },
+            relations: { users: false, steps: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -59,7 +67,10 @@ export class ProjectsService {
     }
 
     async delete (projectId: string, userId: string): Promise<void> {
-        const result = await this.projectRepository.delete({ userId: userId, id: projectId });
+        const result = await this.projectRepository.delete({
+            id: projectId,
+            users: [{ id: userId }],
+        });
         if (result.affected < 1) {
             throw new NotFoundException();
         }
