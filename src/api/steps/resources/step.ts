@@ -12,14 +12,20 @@ export class StepResource {
     @ApiProperty()
     readonly title: string
 
-    @ApiProperty()
+    @ApiProperty({ nullable: true })
     readonly details: string
 
-    @ApiProperty()
+    @ApiProperty({ nullable: true })
     readonly assets: string[]
 
     @ApiProperty()
+    readonly priority: number
+
+    @ApiProperty()
     readonly isCompleted: boolean
+
+    @ApiProperty({ nullable: true })
+    readonly completedBy: string
 
     constructor(step: Step) {
         this.id = step.id;
@@ -27,7 +33,9 @@ export class StepResource {
         this.title = step.title;
         this.details = step.details;
         this.assets = step.assets;
+        this.priority = step.priority;
         this.isCompleted = step.isCompleted;
+        this.completedBy = step.completedBy;
     }
 
     static from (step: Step): StepResource {
