@@ -18,7 +18,7 @@ export class ProjectsService {
     async findAll (userId: string): Promise<Project[]> {
         return await this.projectRepository.find({
             where: { users: [{ id: userId }] },
-            relations: { users: false, steps: false },
+            relations: { users: false, steps: false, createdBy: false },
         });
     }
 
@@ -28,7 +28,7 @@ export class ProjectsService {
                 id: projectId,
                 users: [{ id: userId }]
             },
-            relations: { users: false, steps: false },
+            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -37,7 +37,10 @@ export class ProjectsService {
     }
 
     async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
-        const user = await this.userRepository.findOne({ where: { id: userId } });
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { projects: false, createdProjects: false },
+        });
         if (!user) {
             throw new NotFoundException('User not found');
         }
@@ -58,7 +61,7 @@ export class ProjectsService {
                 id: projectId,
                 users: [{ id: userId }]
             },
-            relations: { users: false, steps: false },
+            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException();
