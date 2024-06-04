@@ -13,7 +13,7 @@ export class ProjectItemsResource {
         this.data = projects;
     }
 
-    static from(projects: ProjectResource[]): ProjectItemsResource {
+    static from (projects: ProjectResource[]): ProjectItemsResource {
         return new ProjectItemsResource(projects);
     }
 }
