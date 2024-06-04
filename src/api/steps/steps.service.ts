@@ -27,7 +27,7 @@ export class StepsService {
                 id: projectId,
                 users: [{ id: userId }],
             },
-            relations: { users: false, steps: false, },
+            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException('Project not found');
@@ -50,7 +50,7 @@ export class StepsService {
                 id: createStepDto.projectId,
                 users: [{ id: userId }],
             },
-            relations: { users: false, steps: false },
+            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException('Project with such id was not found');
@@ -123,7 +123,7 @@ export class StepsService {
         }
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: { projects: false },
+            relations: { projects: false, createdProjects: false },
         });
         if (!user) {
             throw new NotFoundException('User not found');
