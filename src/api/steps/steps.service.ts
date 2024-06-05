@@ -48,7 +48,7 @@ export class StepsService {
         const project = await this.projectRepository.findOne({
             where: {
                 id: createStepDto.projectId,
-                users: [{ id: userId }],
+                createdById: userId,
             },
             relations: { users: false, steps: false, createdBy: false },
         });
@@ -74,7 +74,7 @@ export class StepsService {
             where: {
                 project: {
                     id: projectId,
-                    users: [{ id: userId }],
+                    createdById: userId,
                 },
                 id: stepId,
             },
@@ -94,7 +94,7 @@ export class StepsService {
         const result = await this.stepRepository.delete({
             project: {
                 id: projectId,
-                users: [{ id: userId }],
+                createdById: userId,
             },
             id: stepId,
         });
