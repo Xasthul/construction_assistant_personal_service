@@ -48,7 +48,7 @@ export class ProjectsService {
         project.title = createProjectDto.title;
         project.users = [user];
         project.createdById = user.id;
-        await this.projectRepository.save(project);
+        await this.projectRepository.insert(project);
     }
 
     async update (
@@ -103,7 +103,7 @@ export class ProjectsService {
             throw new NotFoundException('User not found');
         }
         project.users.push(userToAdd);
-        await this.projectRepository.save(project);
+        await this.projectRepository.update(projectId, { users: project.users });
         // userToAdd.projects.push(project);
         // await this.userRepository.save(userToAdd);
     }
@@ -132,6 +132,6 @@ export class ProjectsService {
             throw new NotFoundException('User not found');
         }
         project.users = project.users.filter(e => e.id !== userToDelete.id);
-        await this.projectRepository.save(project);
+        await this.projectRepository.update(projectId, { users: project.users });
     }
 }

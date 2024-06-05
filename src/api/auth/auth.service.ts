@@ -27,7 +27,7 @@ export class AuthService {
 
         const salt = await bcrypt.genSalt();
         user.password = await bcrypt.hash(createUserDto.password, salt);
-        await this.usersRepository.save(user);
+        await this.usersRepository.insert(user);
     }
 
     async login (loginDto: LoginDto): Promise<string> {

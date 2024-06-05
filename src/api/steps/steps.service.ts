@@ -65,7 +65,7 @@ export class StepsService {
         step.details = createStepDto.details;
         step.assets = createStepDto.assets;
         step.priority = createStepDto.priority;
-        await this.stepRepository.save(step);
+        await this.stepRepository.insert(step);
     }
 
     async update (
