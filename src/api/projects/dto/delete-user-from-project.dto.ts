@@ -1,14 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class DeleteUserFromProjectDto {
 
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    readonly projectId: string;
-
     @IsEmail()
+    @MaxLength(320)
     @ApiProperty()
     readonly userEmail: string;
 }

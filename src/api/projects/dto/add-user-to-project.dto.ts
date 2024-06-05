@@ -1,14 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, MaxLength } from "class-validator";
 
 export class AddUserToProjectDto {
 
-    @IsString()
-    @IsNotEmpty()
-    @ApiProperty()
-    readonly projectId: string;
-
     @IsEmail()
+    @MaxLength(320)
     @ApiProperty()
     readonly userEmail: string;
 }

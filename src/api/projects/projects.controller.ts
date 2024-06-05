@@ -95,11 +95,12 @@ export class ProjectsController {
     @ApiResponse({ status: HttpStatus.CONFLICT, description: 'User has been already added' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
     addUser (
+        @Param() projectIdParam: ProjectIdParam,
         @Body() addUserToProjectDto: AddUserToProjectDto,
         @RequestUser() user: JwtPayload,
     ) {
         return this.projectsService.addUser(
-            addUserToProjectDto.projectId,
+            projectIdParam.projectId,
             addUserToProjectDto.userEmail,
             user.id,
         );
@@ -113,11 +114,12 @@ export class ProjectsController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found in project' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
     deleteUser (
+        @Param() projectIdParam: ProjectIdParam,
         @Body() deleteUserFromProjectDto: DeleteUserFromProjectDto,
         @RequestUser() user: JwtPayload,
     ) {
         return this.projectsService.deleteUser(
-            deleteUserFromProjectDto.projectId,
+            projectIdParam.projectId,
             deleteUserFromProjectDto.userEmail,
             user.id,
         );
