@@ -1,15 +1,17 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator"
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Max, MaxLength, Min } from "class-validator"
 
 export class UpdateStepDto {
 
     @IsString()
+    @MaxLength(30)
     @IsNotEmpty()
     @IsOptional()
     @ApiProperty()
     readonly title: string
 
     @IsString()
+    @MaxLength(500)
     @IsNotEmpty()
     @IsOptional()
     @ApiProperty()
@@ -23,6 +25,7 @@ export class UpdateStepDto {
 
     @IsInt()
     @Min(0)
+    @Max(250)
     @IsOptional()
     @ApiProperty()
     readonly priority: number

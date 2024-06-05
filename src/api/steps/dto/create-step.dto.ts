@@ -1,18 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Min } from "class-validator"
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Max, MaxLength, Min } from "class-validator"
 
 export class CreateStepDto {
 
-    @IsUUID()
-    @ApiProperty()
-    readonly projectId: string
-
     @IsString()
+    @MaxLength(30)
     @IsNotEmpty()
     @ApiProperty()
     readonly title: string
 
     @IsString()
+    @MaxLength(500)
     @IsNotEmpty()
     @IsOptional()
     @ApiProperty()
@@ -26,6 +24,7 @@ export class CreateStepDto {
 
     @IsInt()
     @Min(0)
+    @Max(250)
     @ApiProperty()
     readonly priority: number
 }
