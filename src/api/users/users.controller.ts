@@ -5,6 +5,7 @@ import { RequestUser } from '../common/decorators/request-user.decorator';
 import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { UsersService } from './users.service';
 import { JwtPayload } from '../auth/dto/jwt-payload';
+import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -24,6 +25,22 @@ export class UsersController {
     ) {
         return this.usersService.changeName(
             changeUserNameDto.newName,
+            user.id,
+        );
+    }
+
+    @Put('change-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Change user's password" })
+    @ApiResponse({ status: HttpStatus.OK })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong old password' })
+    changePassword (
+        @Body() changeUserPasswordDto: ChangeUserPasswordDto,
+        @RequestUser() user: JwtPayload,
+    ) {
+        return this.usersService.changePassword(
+            changeUserPasswordDto.oldPassword,
+            changeUserPasswordDto.newPassword,
             user.id,
         );
     }
