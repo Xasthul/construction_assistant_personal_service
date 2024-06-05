@@ -10,6 +10,8 @@ import { ProjectItemsResource } from './resources/project-items';
 import { ProjectResource } from './resources/project';
 import { ProjectItemResource } from './resources/project-item';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { AddUserToProjectDto } from './dto/add-user-to-project.dto';
+import { DeleteUserFromProjectDto } from './dto/delete-user-from-project.dto';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -83,5 +85,41 @@ export class ProjectsController {
         @RequestUser() user: JwtPayload,
     ) {
         return this.projectsService.delete(projectIdParam.projectId, user.id);
+    }
+
+    @Post()
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Add user to project" })
+    @ApiResponse({ status: HttpStatus.OK })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
+    @ApiResponse({ status: HttpStatus.CONFLICT, description: 'User has been already added' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    addUser (
+        @Body() addUserToProjectDto: AddUserToProjectDto,
+        @RequestUser() user: JwtPayload,
+    ) {
+        return this.projectsService.addUser(
+            addUserToProjectDto.projectId,
+            addUserToProjectDto.userEmail,
+            user.id,
+        );
+    }
+
+    @Delete()
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Delete user from project" })
+    @ApiResponse({ status: HttpStatus.OK })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found in project' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    deleteUser (
+        @Body() deleteUserFromProjectDto: DeleteUserFromProjectDto,
+        @RequestUser() user: JwtPayload,
+    ) {
+        return this.projectsService.deleteUser(
+            deleteUserFromProjectDto.projectId,
+            deleteUserFromProjectDto.userEmail,
+            user.id,
+        );
     }
 }
