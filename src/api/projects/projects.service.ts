@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../../domain/models/project.entity';
 import { Repository } from 'typeorm';
@@ -59,7 +59,7 @@ export class ProjectsService {
         const project = await this.projectRepository.findOne({
             where: {
                 id: projectId,
-                users: [{ id: userId }]
+                createdById: userId,
             },
             relations: { users: false, steps: false, createdBy: false },
         });
@@ -72,10 +72,66 @@ export class ProjectsService {
     async delete (projectId: string, userId: string): Promise<void> {
         const result = await this.projectRepository.delete({
             id: projectId,
-            users: [{ id: userId }],
+            createdById: userId,
         });
         if (result.affected < 1) {
             throw new NotFoundException();
         }
+    }
+
+    async addUser (
+        projectId: string,
+        userToAddEmail: string,
+        userId: string,
+    ): Promise<void> {
+        const project = await this.projectRepository.findOne({
+            where: {
+                id: projectId,
+                createdById: userId,
+            },
+            relations: { users: true, steps: false, createdBy: false },
+        });
+        if (!project) {
+            throw new NotFoundException('Project not found');
+        }
+        const userAlreadyAdded = project.users.some(e => e.email === userToAddEmail);
+        if (userAlreadyAdded) {
+            throw new ConflictException('User already added');
+        }
+        const userToAdd = await this.userRepository.findOneBy({ email: userToAddEmail });
+        if (!userToAdd) {
+            throw new NotFoundException('User not found');
+        }
+        project.users.push(userToAdd);
+        await this.projectRepository.save(project);
+        // userToAdd.projects.push(project);
+        // await this.userRepository.save(userToAdd);
+    }
+
+    async deleteUser (
+        projectId: string,
+        userToDeleteEmail: string,
+        userId: string,
+    ): Promise<void> {
+        const project = await this.projectRepository.findOne({
+            where: {
+                id: projectId,
+                createdById: userId,
+            },
+            relations: { users: true, steps: false, createdBy: false },
+        });
+        if (!project) {
+            throw new NotFoundException('Project not found');
+        }
+        const userIsAddedToProject = project.users.some(e => e.email === userToDeleteEmail);
+        if (!userIsAddedToProject) {
+            throw new NotFoundException('User not found in project');
+        }
+        const userToDelete = await this.userRepository.findOneBy({ email: userToDeleteEmail });
+        if (!userToDelete) {
+            throw new NotFoundException('User not found');
+        }
+        project.users = project.users.filter(e => e.id !== userToDelete.id);
+        await this.projectRepository.save(project);
     }
 }
