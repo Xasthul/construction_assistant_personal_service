@@ -11,10 +11,7 @@ export class CreateUserDto {
 
     @IsEmail()
     @MaxLength(320)
-    @ApiProperty({
-        example: 'email@email.com',
-        description: "User's email"
-    })
+    @ApiProperty({ example: 'email@email.com' })
     readonly email: string
 
     @IsStrongPassword({
@@ -25,6 +22,6 @@ export class CreateUserDto {
         minUppercase: 1,
     })
     @MaxLength(256)
-    @ApiProperty({ description: "User's password" })
+    @ApiProperty()
     readonly password: string
 }
