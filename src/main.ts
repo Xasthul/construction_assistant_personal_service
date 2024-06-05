@@ -14,7 +14,10 @@ async function bootstrap () {
     new FastifyAdapter()
   );
   app.enableCors();
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }));
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Construction Assistant Perosnal')
