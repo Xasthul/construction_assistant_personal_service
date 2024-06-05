@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator"
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Min } from "class-validator"
 
 export class CreateStepDto {
 
@@ -25,6 +25,7 @@ export class CreateStepDto {
     readonly assets: string[]
 
     @IsInt()
+    @Min(0)
     @ApiProperty()
     readonly priority: number
 }
