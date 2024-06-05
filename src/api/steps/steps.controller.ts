@@ -39,13 +39,13 @@ export class StepsController {
         );
     }
 
-    @Post()
+    @Post('create')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create new step' })
     @ApiResponse({ status: HttpStatus.CREATED, type: StepResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project with such id was not found" })
     create (
-        @Param() projectIdParam: ProjectIdParam,
+        @Query() projectIdParam: ProjectIdParam,
         @Body() createStepDto: CreateStepDto,
         @RequestUser() user: JwtPayload,
     ) {
@@ -92,7 +92,7 @@ export class StepsController {
         );
     }
 
-    @Put('complete/:stepId')
+    @Post('complete/:stepId')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Complete step' })
     @ApiResponse({ status: HttpStatus.OK })

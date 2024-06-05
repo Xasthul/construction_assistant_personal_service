@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Max, MaxLength, Min } from "class-validator"
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Max, MaxLength, Min } from "class-validator"
 
 export class CreateStepDto {
 
