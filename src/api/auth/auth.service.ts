@@ -1,13 +1,12 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dto/jwt-payload';
 import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
-import generatePasswordHash from 'src/domain/utils/generate-password-hash';
+import { generatePasswordHash, comparePasswordWithHash } from 'src/domain/utils/password';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +24,6 @@ export class AuthService {
         const user = new User();
         user.name = createUserDto.name;
         user.email = createUserDto.email;
-
         user.password = await generatePasswordHash(createUserDto.password);
         await this.usersRepository.insert(user);
     }
@@ -36,7 +34,7 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
-        const passwordsMatched = await bcrypt.compare(loginDto.password, user.password);
+        const passwordsMatched = await comparePasswordWithHash(loginDto.password, user.password);
         if (!passwordsMatched) {
             throw new UnauthorizedException();
         }
