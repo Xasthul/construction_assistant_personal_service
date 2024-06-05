@@ -45,10 +45,15 @@ export class StepsController {
     @ApiResponse({ status: HttpStatus.CREATED, type: StepResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project with such id was not found" })
     create (
+        @Param() projectIdParam: ProjectIdParam,
         @Body() createStepDto: CreateStepDto,
         @RequestUser() user: JwtPayload,
     ) {
-        return this.stepsService.create(createStepDto, user.id);
+        return this.stepsService.create(
+            projectIdParam.projectId,
+            createStepDto,
+            user.id,
+        );
     }
 
     @Put(':stepId')

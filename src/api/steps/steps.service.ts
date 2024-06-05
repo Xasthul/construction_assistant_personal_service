@@ -44,10 +44,14 @@ export class StepsService {
         });
     }
 
-    async create (createStepDto: CreateStepDto, userId: string): Promise<void> {
+    async create (
+        projectId: string,
+        createStepDto: CreateStepDto,
+        userId: string
+    ): Promise<void> {
         const project = await this.projectRepository.findOne({
             where: {
-                id: createStepDto.projectId,
+                id: projectId,
                 createdById: userId,
             },
             relations: { users: false, steps: false, createdBy: false },
