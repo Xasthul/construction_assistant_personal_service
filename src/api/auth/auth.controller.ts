@@ -15,7 +15,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Register new user' })
     @ApiResponse({ status: HttpStatus.CREATED })
     @ApiResponse({ status: HttpStatus.CONFLICT, description: 'User with such email already exists' })
-    signUp(@Body() createUserDto: CreateUserDto) {
+    signUp (@Body() createUserDto: CreateUserDto) {
         return this.authService.signUp(createUserDto);
     }
 
@@ -24,7 +24,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Login user' })
     @ApiResponse({ status: HttpStatus.OK, type: LoginResource })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong credentials' })
-    async login(@Body() loginDto: LoginDto) {
+    async login (@Body() loginDto: LoginDto) {
         const accessToken = await this.authService.login(loginDto);
 
         return LoginResource.from(accessToken);
