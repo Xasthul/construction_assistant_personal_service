@@ -18,7 +18,7 @@ export class ProjectsService {
     async findAll (userId: string): Promise<Project[]> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: { projects: true, createdProjects: false }
+            relations: { projects: { users: true } },
         });
         if (!user) {
             throw new UnauthorizedException();
@@ -32,7 +32,7 @@ export class ProjectsService {
                 id: projectId,
                 users: [{ id: userId }]
             },
-            relations: { users: true, steps: false, createdBy: false },
+            relations: { users: true },
         });
         if (!project) {
             throw new NotFoundException();
@@ -43,7 +43,7 @@ export class ProjectsService {
     async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: { projects: true, createdProjects: false },
+            relations: { projects: true },
         });
         if (!user) {
             throw new UnauthorizedException();
@@ -67,7 +67,6 @@ export class ProjectsService {
                 id: projectId,
                 createdById: userId,
             },
-            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -76,13 +75,23 @@ export class ProjectsService {
     }
 
     async delete (projectId: string, userId: string): Promise<void> {
-        const result = await this.projectRepository.delete({
-            id: projectId,
-            createdById: userId,
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { projects: true, createdProjects: true },
         });
-        if (result.affected < 1) {
-            throw new NotFoundException();
+        if (!user) {
+            throw new UnauthorizedException();
         }
+        user.projects = user.projects.filter(e => e.id !== projectId);
+        await this.userRepository.save(user);
+
+        // const result = await this.projectRepository.delete({
+        //     id: projectId,
+        //     createdById: userId,
+        // });
+        // if (result.affected < 1) {
+        //     throw new NotFoundException();
+        // }
     }
 
     async addUser (
@@ -95,7 +104,7 @@ export class ProjectsService {
                 id: projectId,
                 createdById: userId,
             },
-            relations: { users: true, steps: false, createdBy: false },
+            relations: { users: true },
         });
         if (!project) {
             throw new NotFoundException('Project not found');
@@ -124,7 +133,7 @@ export class ProjectsService {
                 id: projectId,
                 createdById: userId,
             },
-            relations: { users: true, steps: false, createdBy: false },
+            relations: { users: true },
         });
         if (!project) {
             throw new NotFoundException('Project not found');
