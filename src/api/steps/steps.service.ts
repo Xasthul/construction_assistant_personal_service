@@ -22,16 +22,15 @@ export class StepsService {
         projectId: string,
         userId: string
     ): Promise<Step[]> {
-        const project = await this.projectRepository.findOne({
-            where: {
-                id: projectId,
-                users: [{ id: userId }],
-            },
-            relations: { users: false, steps: false, createdBy: false },
-        });
-        if (!project) {
-            throw new NotFoundException('Project not found');
-        }
+        // const project = await this.projectRepository.findOne({
+        //     where: {
+        //         id: projectId,
+        //         users: [{ id: userId }],
+        //     },
+        // });
+        // if (!project) {
+        //     throw new NotFoundException('Project not found');
+        // }
         // if (!(project.users.some(e => e.id === userId))) {
         //     throw new ForbiddenException('Access to project denied');
         // }
@@ -39,6 +38,7 @@ export class StepsService {
             where: {
                 project: {
                     id: projectId,
+                    users: [{ id: userId }],
                 },
             }
         });
@@ -54,7 +54,6 @@ export class StepsService {
                 id: projectId,
                 createdById: userId,
             },
-            relations: { users: false, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException('Project with such id was not found');
@@ -120,7 +119,6 @@ export class StepsService {
                 },
                 id: stepId,
             },
-            relations: { project: false },
         });
         if (!step) {
             throw new NotFoundException('Step not found');
@@ -135,7 +133,6 @@ export class StepsService {
                     },
                     priority: stepPriority - 1,
                 },
-                relations: { project: false },
             });
             if (!stepWithPreviousPriority) {
                 throw new InternalServerErrorException('Step with previous priority not found');
@@ -146,7 +143,6 @@ export class StepsService {
         }
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: { projects: false, createdProjects: false },
         });
         if (!user) {
             throw new NotFoundException('User not found');
