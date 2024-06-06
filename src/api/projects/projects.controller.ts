@@ -88,7 +88,7 @@ export class ProjectsController {
         return this.projectsService.delete(projectIdParam.projectId, user.id);
     }
 
-    @Post('add-user/:projectId')
+    @Post(':projectId/add-user')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Add user to project" })
     @ApiResponse({ status: HttpStatus.OK })
@@ -107,7 +107,7 @@ export class ProjectsController {
         );
     }
 
-    @Delete('delete-user/:projectId')
+    @Delete(':projectId/delete-user')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Delete user from project" })
     @ApiResponse({ status: HttpStatus.OK })

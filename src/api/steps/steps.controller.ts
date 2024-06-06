@@ -92,7 +92,7 @@ export class StepsController {
         );
     }
 
-    @Post('complete/:stepId')
+    @Post(':stepId/complete')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Complete step' })
     @ApiResponse({ status: HttpStatus.OK })
