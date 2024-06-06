@@ -24,6 +24,7 @@ export class ProjectsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Get all user's projects" })
     @ApiResponse({ status: HttpStatus.OK, type: ProjectItemsResource })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "User not found" })
     async findAll (@RequestUser() user: JwtPayload) {
         const projects = await this.projectsService.findAll(user.id);
 
@@ -54,7 +55,7 @@ export class ProjectsController {
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: "Create new project" })
     @ApiResponse({ status: HttpStatus.CREATED })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "User not found" })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "User not found" })
     create (
         @Body() createProjectDto: CreateProjectDto,
         @RequestUser() user: JwtPayload,

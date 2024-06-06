@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../../domain/models/project.entity';
 import { Repository } from 'typeorm';
@@ -16,10 +16,14 @@ export class ProjectsService {
     ) { }
 
     async findAll (userId: string): Promise<Project[]> {
-        return await this.projectRepository.find({
-            where: { users: [{ id: userId }] },
-            relations: { users: false, steps: false, createdBy: false },
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { projects: true, createdProjects: false }
         });
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        return user.projects;
     }
 
     async findById (projectId: string, userId: string): Promise<Project> {
@@ -28,7 +32,7 @@ export class ProjectsService {
                 id: projectId,
                 users: [{ id: userId }]
             },
-            relations: { users: false, steps: false, createdBy: false },
+            relations: { users: true, steps: false, createdBy: false },
         });
         if (!project) {
             throw new NotFoundException();
@@ -39,16 +43,18 @@ export class ProjectsService {
     async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: { projects: false, createdProjects: false },
+            relations: { projects: true, createdProjects: false },
         });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UnauthorizedException();
         }
         const project = new Project();
         project.title = createProjectDto.title;
-        project.users = [user];
-        project.createdById = user.id;
+        project.createdById = userId;
         await this.projectRepository.insert(project);
+
+        user.projects.push(project);
+        await this.userRepository.save(user);
     }
 
     async update (
