@@ -35,7 +35,7 @@ export class AuthController {
     @Post('refresh-token')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Refresh access token' })
-    @ApiResponse({ status: HttpStatus.OK, type: LoginResource })
+    @ApiResponse({ status: HttpStatus.OK, type: AccessTokenResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "User not found" })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Invalid refresh token" })
     async refreshToken (@Query() refreshTokenParam: RefreshTokenParam) {
