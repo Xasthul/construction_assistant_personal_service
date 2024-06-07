@@ -16,6 +16,9 @@ export class User {
     @Column()
     password: string
 
+    @Column({ nullable: true })
+    refreshToken: string
+
     @ManyToMany(() => Project, (project) => project.users)
     @JoinTable()
     projects: Project[]
