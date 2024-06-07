@@ -56,4 +56,11 @@ export class UsersService {
         }
         await this.usersRepository.update(userId, { refreshToken: null, });
     }
+
+    async delete (userId: string): Promise<void> {
+        const result = await this.usersRepository.delete(userId);
+        if (result.affected < 1) {
+            throw new NotFoundException();
+        }
+    }
 }

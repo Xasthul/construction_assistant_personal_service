@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth-guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestUser } from '../common/decorators/request-user.decorator';
@@ -51,6 +51,15 @@ export class UsersController {
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
     logout (@RequestUser() user: JwtPayload,) {
-        return this.usersService.logout(user.id,);
+        return this.usersService.logout(user.id);
+    }
+
+    @Delete()
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Delete user" })
+    @ApiResponse({ status: HttpStatus.OK })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    delete (@RequestUser() user: JwtPayload,) {
+        return this.usersService.delete(user.id);
     }
 }
