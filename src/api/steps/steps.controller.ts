@@ -10,6 +10,7 @@ import { StepResource } from './resources/step';
 import { ProjectIdParam } from '../projects/dto/project-id.param';
 import { RequestUser } from '../common/decorators/request-user.decorator';
 import { JwtPayload } from '../auth/dto/jwt-payload';
+import { StepItemResource } from './resources/step-item';
 
 @Controller('steps')
 @UseGuards(JwtAuthGuard)
@@ -36,6 +37,27 @@ export class StepsController {
             steps.map(
                 (step) => StepResource.from(step),
             ),
+        );
+    }
+
+    @Get(':stepId')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get step by id" })
+    @ApiResponse({ status: HttpStatus.OK, type: StepItemResource })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Step not found" })
+    async findById (
+        @Query() projectIdParam: ProjectIdParam,
+        @Param() stepIdParam: StepIdParam,
+        @RequestUser() user: JwtPayload,
+    ) {
+        const project = await this.stepsService.findById(
+            projectIdParam.projectId,
+            stepIdParam.stepId,
+            user.id,
+        );
+
+        return StepItemResource.from(
+            StepResource.from(project)
         );
     }
 

@@ -44,6 +44,26 @@ export class StepsService {
         });
     }
 
+    async findById (
+        projectId: string,
+        stepId: string,
+        userId: string,
+    ): Promise<Step> {
+        const step = await this.stepRepository.findOne({
+            where: {
+                project: {
+                    id: projectId,
+                    users: [{ id: userId }],
+                },
+                id: stepId,
+            },
+        });
+        if (!step) {
+            throw new NotFoundException();
+        }
+        return step;
+    }
+
     async create (
         projectId: string,
         createStepDto: CreateStepDto,
@@ -81,7 +101,6 @@ export class StepsService {
                 },
                 id: stepId,
             },
-            relations: { project: false },
         });
         if (!step) {
             throw new NotFoundException();
