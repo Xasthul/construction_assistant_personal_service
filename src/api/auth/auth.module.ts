@@ -14,7 +14,6 @@ import { User } from 'src/domain/models/user.entity';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('jwtSecret'),
-        signOptions: { expiresIn: '1d' }
       }),
       inject: [ConfigService]
     })
