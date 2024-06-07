@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class RefreshTokenResource {
+export class AccessTokenResource {
     @ApiProperty()
     readonly accessToken: string
 
@@ -8,7 +8,7 @@ export class RefreshTokenResource {
         this.accessToken = accessToken;
     }
 
-    static from (accessToken: string): RefreshTokenResource {
-        return new RefreshTokenResource(accessToken);
+    static from (accessToken: string): AccessTokenResource {
+        return new AccessTokenResource(accessToken);
     }
 }

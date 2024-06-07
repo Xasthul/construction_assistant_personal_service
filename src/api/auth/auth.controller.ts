@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResource } from './resources/login';
 import { RefreshTokenParam } from './dto/refresh-token.param';
-import { RefreshTokenResource } from './resources/refresh_token';
+import { AccessTokenResource } from './resources/access_token';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -41,6 +41,6 @@ export class AuthController {
     async refreshToken (@Query() refreshTokenParam: RefreshTokenParam) {
         const accessToken = await this.authService.refreshToken(refreshTokenParam.refreshToken);
 
-        return RefreshTokenResource.from(accessToken);
+        return AccessTokenResource.from(accessToken);
     }
 }
