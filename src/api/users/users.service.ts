@@ -48,4 +48,12 @@ export class UsersService {
 
         return refreshToken;
     }
+
+    async logout (userId: string): Promise<void> {
+        const user = await this.usersRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+        await this.usersRepository.update(userId, { refreshToken: null, });
+    }
 }
