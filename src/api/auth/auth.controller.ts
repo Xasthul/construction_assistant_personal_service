@@ -5,7 +5,9 @@ import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResource } from './resources/login';
 import { RefreshTokenParam } from './dto/refresh-token.param';
-import { AccessTokenResource } from './resources/access_token';
+import { AccessTokenResource } from './resources/access-token';
+import { LoginItemResource } from './resources/login-item';
+import { AccessTokenItemResource } from './resources/access-token-item';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -24,23 +26,27 @@ export class AuthController {
     @Post('login')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Login user' })
-    @ApiResponse({ status: HttpStatus.OK, type: LoginResource })
+    @ApiResponse({ status: HttpStatus.OK, type: LoginItemResource })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong credentials' })
     async login (@Body() loginDto: LoginDto) {
         const loginTokens = await this.authService.login(loginDto);
 
-        return LoginResource.from(loginTokens);
+        return LoginItemResource.from(
+            LoginResource.from(loginTokens),
+        );
     }
 
     @Post('refresh-token')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Refresh access token' })
-    @ApiResponse({ status: HttpStatus.OK, type: AccessTokenResource })
+    @ApiResponse({ status: HttpStatus.OK, type: AccessTokenItemResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "User not found" })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Invalid refresh token" })
     async refreshToken (@Query() refreshTokenParam: RefreshTokenParam) {
         const accessToken = await this.authService.refreshToken(refreshTokenParam.refreshToken);
 
-        return AccessTokenResource.from(accessToken);
+        return AccessTokenItemResource.from(
+            AccessTokenResource.from(accessToken),
+        );
     }
 }
