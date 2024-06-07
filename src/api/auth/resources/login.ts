@@ -1,14 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { LoginTokens } from "src/domain/types/login_tokens";
 
 export class LoginResource {
     @ApiProperty()
     readonly accessToken: string
 
-    constructor(accessToken: string) {
-        this.accessToken = accessToken;
+    @ApiProperty()
+    readonly refreshToken: string
+
+    constructor(loginTokens: LoginTokens) {
+        this.accessToken = loginTokens.accessToken;
+        this.refreshToken = loginTokens.refreshToken;
     }
 
-    static from(accessToken: string): LoginResource {
-        return new LoginResource(accessToken);
+    static from (loginTokens: LoginTokens): LoginResource {
+        return new LoginResource(loginTokens);
     }
 }
