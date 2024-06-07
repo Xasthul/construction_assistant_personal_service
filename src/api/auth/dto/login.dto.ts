@@ -5,15 +5,12 @@ export class LoginDto {
 
     @IsEmail()
     @MaxLength(320)
-    @ApiProperty({
-        example: 'email@email.com',
-        description: "User's email"
-    })
+    @ApiProperty({ example: 'email@email.com' })
     readonly email: string
 
     @IsString()
     @MaxLength(256)
     @IsNotEmpty()
-    @ApiProperty({ description: "User's password" })
+    @ApiProperty()
     readonly password: string
 }
