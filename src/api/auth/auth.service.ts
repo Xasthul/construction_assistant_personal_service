@@ -6,7 +6,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
-import { generatePasswordHash, comparePasswordWithHash } from 'src/domain/utils/password';
+import { LoginTokens } from 'src/domain/types/login_tokens';
+import { generateHashFor, comparStringWithHash } from 'src/domain/utils/hash';
 
 @Injectable()
 export class AuthService {
@@ -24,22 +25,50 @@ export class AuthService {
         const user = new User();
         user.name = createUserDto.name;
         user.email = createUserDto.email;
-        user.password = await generatePasswordHash(createUserDto.password);
+        user.password = await generateHashFor(createUserDto.password);
         await this.usersRepository.insert(user);
     }
 
-    async login (loginDto: LoginDto): Promise<string> {
+    async login (loginDto: LoginDto): Promise<LoginTokens> {
         const user = await this.usersRepository.findOneBy({ email: loginDto.email });
         if (!user) {
             throw new UnauthorizedException();
         }
 
-        const passwordsMatched = await comparePasswordWithHash(loginDto.password, user.password);
+        const passwordsMatched = await comparStringWithHash(loginDto.password, user.password);
         if (!passwordsMatched) {
             throw new UnauthorizedException();
         }
 
         const payload: JwtPayload = { id: user.id };
-        return this.jwtService.sign(payload);
+        const accessToken = this.generateAccessTokenFor(payload);
+        const refreshToken = this.generateRefreshTokenFor(payload);
+
+        const refreshTokenHash = await generateHashFor(refreshToken);
+        await this.usersRepository.update(user.id, { refreshToken: refreshTokenHash });
+
+        const loginTokens: LoginTokens = { accessToken, refreshToken };
+        return loginTokens;
+    }
+
+    async refreshToken (oldRefreshToken: string): Promise<string> {
+        const payload: JwtPayload = await this.jwtService.decode(oldRefreshToken);
+        const user = await this.usersRepository.findOneBy({ id: payload.id });
+        if (!user) {
+            throw new UnauthorizedException();
+        }
+        const refreshTokensMatched = await comparStringWithHash(oldRefreshToken, user.refreshToken);
+        if (!refreshTokensMatched) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+        return this.generateAccessTokenFor(payload);
+    }
+
+    private generateAccessTokenFor (payload: JwtPayload): string {
+        return this.jwtService.sign(payload, { expiresIn: '15m' });
+    }
+
+    private generateRefreshTokenFor (payload: JwtPayload): string {
+        return this.jwtService.sign(payload, { expiresIn: '90d' });
     }
 }
