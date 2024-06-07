@@ -44,24 +44,26 @@ export class AuthService {
         const accessToken = this.generateAccessTokenFor(payload);
         const refreshToken = this.generateRefreshTokenFor(payload);
 
-        const refreshTokenHash = await generateHashFor(refreshToken);
-        await this.usersRepository.update(user.id, { refreshToken: refreshTokenHash });
+        // const refreshTokenHash = await generateHashFor(refreshToken);
+        await this.usersRepository.update(user.id, { refreshToken: refreshToken });
 
         const loginTokens: LoginTokens = { accessToken, refreshToken };
         return loginTokens;
     }
 
-    async refreshToken (oldRefreshToken: string): Promise<string> {
-        const payload: JwtPayload = await this.jwtService.decode(oldRefreshToken);
-        const user = await this.usersRepository.findOneBy({ id: payload.id });
+    async refreshToken (refreshToken: string): Promise<string> {
+        const receivedPayload: JwtPayload = await this.jwtService.decode(refreshToken);
+        const user = await this.usersRepository.findOneBy({ id: receivedPayload.id });
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        const refreshTokensMatched = await comparStringWithHash(oldRefreshToken, user.refreshToken);
+        // const refreshTokensMatched = await comparStringWithHash(refreshToken, user.refreshToken);
+        const refreshTokensMatched = refreshToken === user.refreshToken;
         if (!refreshTokensMatched) {
             throw new UnauthorizedException('Invalid refresh token');
         }
-        return this.generateAccessTokenFor(payload);
+        const newPayload: JwtPayload = { id: user.id };
+        return this.generateAccessTokenFor(newPayload);
     }
 
     private generateAccessTokenFor (payload: JwtPayload): string {
