@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Project } from '../../domain/models/project.entity';
 import { Repository } from 'typeorm';
@@ -53,8 +53,10 @@ export class ProjectsService {
         project.createdById = userId;
         await this.projectRepository.insert(project);
 
-        user.projects.push(project);
-        await this.userRepository.save(user);
+        project.users = [user];
+        await this.projectRepository.save(project);
+        // user.projects.push(project);
+        // await this.userRepository.save(user);
     }
 
     async update (
@@ -75,23 +77,26 @@ export class ProjectsService {
     }
 
     async delete (projectId: string, userId: string): Promise<void> {
-        const user = await this.userRepository.findOne({
-            where: { id: userId },
-            relations: { projects: true, createdProjects: true },
+        const project = await this.projectRepository.findOne({
+            where: {
+                id: projectId,
+                createdById: userId,
+            },
+            relations: { users: true },
         });
-        if (!user) {
-            throw new UnauthorizedException();
+        if (!project) {
+            throw new NotFoundException();
         }
-        user.projects = user.projects.filter(e => e.id !== projectId);
-        await this.userRepository.save(user);
+        project.users = [];
+        await this.projectRepository.save(project);
 
-        // const result = await this.projectRepository.delete({
-        //     id: projectId,
-        //     createdById: userId,
-        // });
-        // if (result.affected < 1) {
-        //     throw new NotFoundException();
-        // }
+        const result = await this.projectRepository.delete({
+            id: projectId,
+            createdById: userId,
+        });
+        if (result.affected !== 1) {
+            throw new InternalServerErrorException();
+        }
     }
 
     async addUser (
@@ -118,9 +123,7 @@ export class ProjectsService {
             throw new NotFoundException('User not found');
         }
         project.users.push(userToAdd);
-        await this.projectRepository.update(projectId, { users: project.users });
-        // userToAdd.projects.push(project);
-        // await this.userRepository.save(userToAdd);
+        await this.projectRepository.save(project);
     }
 
     async deleteUser (
@@ -147,6 +150,6 @@ export class ProjectsService {
             throw new NotFoundException('User not found');
         }
         project.users = project.users.filter(e => e.id !== userToDelete.id);
-        await this.projectRepository.update(projectId, { users: project.users });
+        await this.projectRepository.save(project);
     }
 }
