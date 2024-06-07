@@ -2,13 +2,16 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
-import { generatePasswordHash, comparePasswordWithHash } from 'src/domain/utils/password';
+import { generateHashFor, comparStringWithHash } from 'src/domain/utils/hash';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from '../auth/dto/jwt-payload';
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private usersRepository: Repository<User>,
+        private jwtService: JwtService,
     ) { }
 
     async changeName (newName: string, userId: string): Promise<void> {
@@ -23,16 +26,26 @@ export class UsersService {
         oldPassword: string,
         newPassword: string,
         userId: string,
-    ): Promise<void> {
+    ): Promise<string> {
         const user = await this.usersRepository.findOneBy({ id: userId });
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        const isOldPasswordValid = await comparePasswordWithHash(oldPassword, user.password);
+        const isOldPasswordValid = await comparStringWithHash(oldPassword, user.password);
         if (!isOldPasswordValid) {
             throw new UnauthorizedException();
         }
-        const newPasswordhash = await generatePasswordHash(newPassword);
-        await this.usersRepository.update(userId, { password: newPasswordhash });
+        const newPasswordhash = await generateHashFor(newPassword);
+
+        const payload: JwtPayload = { id: user.id };
+        const refreshToken = this.jwtService.sign(payload, { expiresIn: '90d' });
+        const refreshTokenHash = await generateHashFor(refreshToken);
+
+        await this.usersRepository.update(userId, {
+            password: newPasswordhash,
+            refreshToken: refreshTokenHash,
+        });
+
+        return refreshToken;
     }
 }
