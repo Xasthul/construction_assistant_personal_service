@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
-import { generateHashFor, comparStringWithHash } from 'src/domain/utils/hash';
+import { generatePasswordHash, comparPasswordWithHash } from 'src/domain/utils/password';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../auth/dto/jwt-payload';
 
@@ -31,19 +31,18 @@ export class UsersService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        const isOldPasswordValid = await comparStringWithHash(oldPassword, user.password);
+        const isOldPasswordValid = await comparPasswordWithHash(oldPassword, user.password);
         if (!isOldPasswordValid) {
             throw new UnauthorizedException();
         }
-        const newPasswordhash = await generateHashFor(newPassword);
+        const newPasswordhash = await generatePasswordHash(newPassword);
 
         const payload: JwtPayload = { id: user.id };
         const refreshToken = this.jwtService.sign(payload, { expiresIn: '90d' });
-        const refreshTokenHash = await generateHashFor(refreshToken);
 
         await this.usersRepository.update(userId, {
             password: newPasswordhash,
-            refreshToken: refreshTokenHash,
+            refreshToken: refreshToken,
         });
 
         return refreshToken;

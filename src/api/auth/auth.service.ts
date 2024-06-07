@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
 import { LoginTokens } from 'src/domain/types/login_tokens';
-import { generateHashFor, comparStringWithHash } from 'src/domain/utils/hash';
+import { generatePasswordHash, comparPasswordWithHash } from 'src/domain/utils/password';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +25,7 @@ export class AuthService {
         const user = new User();
         user.name = createUserDto.name;
         user.email = createUserDto.email;
-        user.password = await generateHashFor(createUserDto.password);
+        user.password = await generatePasswordHash(createUserDto.password);
         await this.usersRepository.insert(user);
     }
 
@@ -35,7 +35,7 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
-        const passwordsMatched = await comparStringWithHash(loginDto.password, user.password);
+        const passwordsMatched = await comparPasswordWithHash(loginDto.password, user.password);
         if (!passwordsMatched) {
             throw new UnauthorizedException();
         }
@@ -44,7 +44,7 @@ export class AuthService {
         const accessToken = this.generateAccessTokenFor(payload);
         const refreshToken = this.generateRefreshTokenFor(payload);
 
-        // const refreshTokenHash = await generateHashFor(refreshToken);
+        // TODO: refresh token should be hashed, but bcrypt can't do it
         await this.usersRepository.update(user.id, { refreshToken: refreshToken });
 
         const loginTokens: LoginTokens = { accessToken, refreshToken };
@@ -57,9 +57,7 @@ export class AuthService {
         if (!user) {
             throw new NotFoundException('User not found');
         }
-        // const refreshTokensMatched = await comparStringWithHash(refreshToken, user.refreshToken);
-        const refreshTokensMatched = refreshToken === user.refreshToken;
-        if (!refreshTokensMatched) {
+        if (refreshToken !== user.refreshToken) {
             throw new UnauthorizedException('Invalid refresh token');
         }
         const newPayload: JwtPayload = { id: user.id };
