@@ -1,9 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Query } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResource } from './resources/login';
+import { RefreshTokenParam } from './dto/refresh-token.param';
+import { RefreshTokenResource } from './resources/refresh_token';
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -25,8 +27,20 @@ export class AuthController {
     @ApiResponse({ status: HttpStatus.OK, type: LoginResource })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong credentials' })
     async login (@Body() loginDto: LoginDto) {
-        const accessToken = await this.authService.login(loginDto);
+        const loginTokens = await this.authService.login(loginDto);
 
-        return LoginResource.from(accessToken);
+        return LoginResource.from(loginTokens);
+    }
+
+    @Post('refresh-token')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Refresh access token' })
+    @ApiResponse({ status: HttpStatus.OK, type: LoginResource })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "User not found" })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "Invalid refresh token" })
+    async refreshToken (@Query() refreshTokenParam: RefreshTokenParam) {
+        const accessToken = await this.authService.refreshToken(refreshTokenParam.refreshToken);
+
+        return RefreshTokenResource.from(accessToken);
     }
 }

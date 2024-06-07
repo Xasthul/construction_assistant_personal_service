@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dto/jwt-payload';
@@ -55,7 +55,7 @@ export class AuthService {
         const payload: JwtPayload = await this.jwtService.decode(oldRefreshToken);
         const user = await this.usersRepository.findOneBy({ id: payload.id });
         if (!user) {
-            throw new UnauthorizedException();
+            throw new NotFoundException('User not found');
         }
         const refreshTokensMatched = await comparStringWithHash(oldRefreshToken, user.refreshToken);
         if (!refreshTokensMatched) {
