@@ -6,6 +6,8 @@ import { ChangeUserNameDto } from './dto/change-user-name.dto';
 import { UsersService } from './users.service';
 import { JwtPayload } from '../auth/dto/jwt-payload';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
+import { RefreshTokenItemResource } from './resources/refresh-token-item';
+import { RefreshTokenResource } from './resources/refresh-token';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -32,16 +34,20 @@ export class UsersController {
     @Put('change-password')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: "Change user's password" })
-    @ApiResponse({ status: HttpStatus.OK })
+    @ApiResponse({ status: HttpStatus.OK, type: RefreshTokenItemResource })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Wrong old password' })
-    changePassword (
+    async changePassword (
         @Body() changeUserPasswordDto: ChangeUserPasswordDto,
         @RequestUser() user: JwtPayload,
     ) {
-        return this.usersService.changePassword(
+        const refreshToken = await this.usersService.changePassword(
             changeUserPasswordDto.oldPassword,
             changeUserPasswordDto.newPassword,
             user.id,
+        );
+
+        return RefreshTokenItemResource.from(
+            RefreshTokenResource.from(refreshToken),
         );
     }
 
