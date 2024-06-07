@@ -8,7 +8,7 @@ export class Project {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
-    @ManyToMany(() => User, (user) => user.projects)
+    @ManyToMany(() => User, (user) => user.projects, { onDelete: 'CASCADE' })
     users: User[]
 
     @Column()
