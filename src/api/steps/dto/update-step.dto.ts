@@ -28,5 +28,5 @@ export class UpdateStepDto {
     @Max(250)
     @IsOptional()
     @ApiProperty()
-    readonly priority: number
+    readonly order: number
 }

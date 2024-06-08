@@ -19,7 +19,7 @@ export class StepResource {
     readonly assets: string[]
 
     @ApiProperty()
-    readonly priority: number
+    readonly order: number
 
     @ApiProperty()
     readonly isCompleted: boolean
@@ -33,7 +33,7 @@ export class StepResource {
         this.title = step.title;
         this.details = step.details;
         this.assets = step.assets;
-        this.priority = step.priority;
+        this.order = step.order;
         this.isCompleted = step.isCompleted;
         this.completedBy = step.completedBy;
     }

@@ -119,8 +119,8 @@ export class StepsController {
     @ApiOperation({ summary: 'Complete step' })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Step or User not found' })
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Step with previous priority not found' })
-    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Step with previous priority not completed' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Step with previous order not found' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Step with previous order not completed' })
     complete (
         @Query() projectIdParam: ProjectIdParam,
         @Param() stepIdParam: StepIdParam,

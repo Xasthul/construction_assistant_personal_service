@@ -83,7 +83,7 @@ export class StepsService {
         step.title = createStepDto.title;
         step.details = createStepDto.details;
         step.assets = createStepDto.assets;
-        step.priority = createStepDto.priority;
+        step.order = createStepDto.order;
         await this.stepRepository.insert(step);
     }
 
@@ -142,21 +142,21 @@ export class StepsService {
         if (!step) {
             throw new NotFoundException('Step not found');
         }
-        const stepPriority = step.priority;
-        if (stepPriority !== 0) {
-            const stepWithPreviousPriority = await this.stepRepository.findOne({
+        const stepOrder = step.order;
+        if (stepOrder !== 0) {
+            const stepWithPreviousOrder = await this.stepRepository.findOne({
                 where: {
                     project: {
                         id: projectId,
                         users: [{ id: userId }],
                     },
-                    priority: stepPriority - 1,
+                    order: stepOrder - 1,
                 },
             });
-            if (!stepWithPreviousPriority) {
-                throw new InternalServerErrorException('Step with previous priority not found');
+            if (!stepWithPreviousOrder) {
+                throw new InternalServerErrorException('Step with previous order not found');
             }
-            if (!stepWithPreviousPriority.isCompleted) {
+            if (!stepWithPreviousOrder.isCompleted) {
                 throw new ForbiddenException('Previous step is not completed');
             }
         }

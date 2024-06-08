@@ -23,7 +23,7 @@ export class Step {
     assets: string[]
 
     @Column()
-    priority: number
+    order: number
 
     @Column({ default: false })
     isCompleted: boolean

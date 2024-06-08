@@ -26,5 +26,5 @@ export class CreateStepDto {
     @Min(0)
     @Max(250)
     @ApiProperty()
-    readonly priority: number
+    readonly order: number
 }
