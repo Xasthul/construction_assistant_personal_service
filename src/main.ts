@@ -7,6 +7,7 @@ import { AppModule } from './api/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UnauthorizedExceptionFilter } from './api/common/filters/unauthorized-excecption.filter';
 
 async function bootstrap () {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -14,6 +15,7 @@ async function bootstrap () {
     new FastifyAdapter()
   );
   app.enableCors();
+  app.useGlobalFilters(new UnauthorizedExceptionFilter());
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
