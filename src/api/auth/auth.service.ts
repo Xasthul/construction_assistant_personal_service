@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './dto/jwt-payload';
@@ -8,6 +8,8 @@ import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
 import { LoginTokens } from 'src/domain/types/login_tokens';
 import { generatePasswordHash, comparPasswordWithHash } from 'src/domain/utils/password';
+import { EmailAlreadyRegisteredError, InvalidRefreshTokenError, WrongCredentialsError } from './types/auth-errors';
+import { UserNotFoundError } from '../users/types/user-errors';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +22,7 @@ export class AuthService {
     async signUp (createUserDto: CreateUserDto) {
         const doesUserAlreadyExists = await this.usersRepository.existsBy({ email: createUserDto.email });
         if (doesUserAlreadyExists) {
-            throw new ConflictException();
+            throw new EmailAlreadyRegisteredError();
         }
         const user = new User();
         user.name = createUserDto.name;
@@ -32,12 +34,12 @@ export class AuthService {
     async login (loginDto: LoginDto): Promise<LoginTokens> {
         const user = await this.usersRepository.findOneBy({ email: loginDto.email });
         if (!user) {
-            throw new UnauthorizedException();
+            throw new WrongCredentialsError();
         }
 
         const passwordsMatched = await comparPasswordWithHash(loginDto.password, user.password);
         if (!passwordsMatched) {
-            throw new UnauthorizedException();
+            throw new WrongCredentialsError();
         }
 
         const payload: JwtPayload = { id: user.id };
@@ -55,10 +57,10 @@ export class AuthService {
         const receivedPayload: JwtPayload = await this.jwtService.decode(refreshToken);
         const user = await this.usersRepository.findOneBy({ id: receivedPayload.id });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundError();
         }
         if (refreshToken !== user.refreshToken) {
-            throw new UnauthorizedException('Invalid refresh token');
+            throw new InvalidRefreshTokenError();
         }
         const newPayload: JwtPayload = { id: user.id };
         return this.generateAccessTokenFor(newPayload);

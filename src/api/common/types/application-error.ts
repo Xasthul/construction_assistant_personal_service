@@ -27,4 +27,7 @@ export class ApplicationErrorCode {
     static deleteStepFailed = 9;
     static stepWithPreviousOrderNotFound = 10;
     static previousStepNotCompleted = 11;
+    static emailAlreadyRegistered = 12;
+    static wrongCredentials = 13;
+    static invalidRefreshToken = 14;
 }
