@@ -26,7 +26,7 @@ export class UserAlreadyAddedToProjectError extends ApplicationError {
         super(
             HttpStatus.CONFLICT,
             ApplicationErrorCode.userAlreadyAddedToProject,
-            "Delete project failed",
+            "User already added to project",
         );
     }
 }

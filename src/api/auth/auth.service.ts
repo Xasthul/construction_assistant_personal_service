@@ -68,7 +68,7 @@ export class AuthService {
     }
 
     private generateAccessTokenFor (payload: JwtPayload): string {
-        return this.jwtService.sign(payload, { expiresIn: '1m' });
+        return this.jwtService.sign(payload, { expiresIn: '15m' });
     }
 
     private generateRefreshTokenFor (payload: JwtPayload): string {
