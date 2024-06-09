@@ -64,7 +64,7 @@ export class StepsController {
     @Post('create')
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create new step' })
-    @ApiResponse({ status: HttpStatus.CREATED, type: StepResource })
+    @ApiResponse({ status: HttpStatus.CREATED })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project with such id was not found" })
     create (
         @Query() projectIdParam: ProjectIdParam,
