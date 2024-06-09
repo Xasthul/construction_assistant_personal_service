@@ -30,4 +30,5 @@ export class ApplicationErrorCode {
     static emailAlreadyRegistered = 12;
     static wrongCredentials = 13;
     static invalidRefreshToken = 14;
+    static invalidAccessToken = 15;
 }

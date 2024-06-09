@@ -60,6 +60,7 @@ export class AuthService {
             throw new UserNotFoundError();
         }
         if (refreshToken !== user.refreshToken) {
+            console.log('Invalid refresh token');
             throw new InvalidRefreshTokenError();
         }
         const newPayload: JwtPayload = { id: user.id };
@@ -67,7 +68,7 @@ export class AuthService {
     }
 
     private generateAccessTokenFor (payload: JwtPayload): string {
-        return this.jwtService.sign(payload, { expiresIn: '15m' });
+        return this.jwtService.sign(payload, { expiresIn: '1m' });
     }
 
     private generateRefreshTokenFor (payload: JwtPayload): string {

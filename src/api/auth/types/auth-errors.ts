@@ -30,3 +30,13 @@ export class InvalidRefreshTokenError extends ApplicationError {
         );
     }
 }
+
+export class InvalidAccessTokenError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.UNAUTHORIZED,
+            ApplicationErrorCode.invalidAccessToken,
+            "Invalid access token",
+        );
+    }
+}
