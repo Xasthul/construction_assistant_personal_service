@@ -23,4 +23,8 @@ export class ApplicationErrorCode {
     static userNotAddedToProject = 5;
     static wrongOldPassword = 6;
     static deleteUserFailed = 7;
+    static stepNotFound = 8;
+    static deleteStepFailed = 9;
+    static stepWithPreviousOrderNotFound = 10;
+    static previousStepNotCompleted = 11;
 }

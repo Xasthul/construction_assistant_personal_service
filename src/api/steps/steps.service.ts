@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Step } from '../../domain/models/step.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +6,9 @@ import { CreateStepDto } from './dto/create-step.dto';
 import { UpdateStepDto } from './dto/update-step.dto';
 import { Project } from 'src/domain/models/project.entity';
 import { User } from 'src/domain/models/user.entity';
+import { DeleteStepFailedError, PreviousStepNotCompletedError, StepNotFoundError, StepWithPreviousOrderNotFoundError } from './types/step-errors';
+import { ProjectNotFoundError } from '../projects/types/project-errors';
+import { UserNotFoundError } from '../users/types/user-errors';
 
 @Injectable()
 export class StepsService {
@@ -22,18 +25,6 @@ export class StepsService {
         projectId: string,
         userId: string
     ): Promise<Step[]> {
-        // const project = await this.projectRepository.findOne({
-        //     where: {
-        //         id: projectId,
-        //         users: [{ id: userId }],
-        //     },
-        // });
-        // if (!project) {
-        //     throw new NotFoundException('Project not found');
-        // }
-        // if (!(project.users.some(e => e.id === userId))) {
-        //     throw new ForbiddenException('Access to project denied');
-        // }
         return await this.stepRepository.find({
             where: {
                 project: {
@@ -59,7 +50,7 @@ export class StepsService {
             },
         });
         if (!step) {
-            throw new NotFoundException();
+            throw new StepNotFoundError();
         }
         return step;
     }
@@ -76,7 +67,7 @@ export class StepsService {
             },
         });
         if (!project) {
-            throw new NotFoundException('Project with such id was not found');
+            throw new ProjectNotFoundError();
         }
         const step = new Step();
         step.projectId = project.id;
@@ -103,7 +94,7 @@ export class StepsService {
             },
         });
         if (!step) {
-            throw new NotFoundException();
+            throw new StepNotFoundError();
         }
         await this.stepRepository.update(stepId, updateStepDto);
     }
@@ -121,7 +112,10 @@ export class StepsService {
             id: stepId,
         });
         if (result.affected < 1) {
-            throw new NotFoundException();
+            throw new StepNotFoundError();
+        }
+        if (result.affected > 1) {
+            throw new DeleteStepFailedError();
         }
     }
 
@@ -140,38 +134,34 @@ export class StepsService {
             },
         });
         if (!step) {
-            throw new NotFoundException('Step not found');
+            throw new StepNotFoundError();
         }
-        const stepOrder = step.order;
-        if (stepOrder !== 0) {
+        if (step.order !== 0) {
             const stepWithPreviousOrder = await this.stepRepository.findOne({
                 where: {
                     project: {
                         id: projectId,
                         users: [{ id: userId }],
                     },
-                    order: stepOrder - 1,
+                    order: step.order - 1,
                 },
             });
             if (!stepWithPreviousOrder) {
-                throw new InternalServerErrorException('Step with previous order not found');
+                throw new StepWithPreviousOrderNotFoundError();
             }
             if (!stepWithPreviousOrder.isCompleted) {
-                throw new ForbiddenException('Previous step is not completed');
+                throw new PreviousStepNotCompletedError();
             }
         }
-        const user = await this.userRepository.findOne({
-            where: { id: userId },
-        });
+        const user = await this.userRepository.findOneBy({ id: userId });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundError();
         }
         await this.stepRepository.update(
-            stepId,
-            {
-                isCompleted: true,
-                completedBy: user.name,
-            },
+            stepId, {
+            isCompleted: true,
+            completedBy: user.name,
+        },
         );
     }
 }
