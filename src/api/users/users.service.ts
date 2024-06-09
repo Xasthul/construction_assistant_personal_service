@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/domain/models/user.entity';
 import { Repository } from 'typeorm';
 import { generatePasswordHash, comparPasswordWithHash } from 'src/domain/utils/password';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from '../auth/dto/jwt-payload';
+import { DeleteUserFailedError, UserNotFoundError, WrongOldPasswordError } from './types/user-errors';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,7 @@ export class UsersService {
     async changeName (newName: string, userId: string): Promise<void> {
         const user = await this.usersRepository.findOneBy({ id: userId });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundError();
         }
         await this.usersRepository.update(userId, { name: newName });
     }
@@ -29,11 +30,11 @@ export class UsersService {
     ): Promise<string> {
         const user = await this.usersRepository.findOneBy({ id: userId });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundError();
         }
         const isOldPasswordValid = await comparPasswordWithHash(oldPassword, user.password);
         if (!isOldPasswordValid) {
-            throw new UnauthorizedException();
+            throw new WrongOldPasswordError();
         }
         const newPasswordhash = await generatePasswordHash(newPassword);
 
@@ -51,7 +52,7 @@ export class UsersService {
     async logout (userId: string): Promise<void> {
         const user = await this.usersRepository.findOneBy({ id: userId });
         if (!user) {
-            throw new NotFoundException('User not found');
+            throw new UserNotFoundError();
         }
         await this.usersRepository.update(userId, { refreshToken: null, });
     }
@@ -59,7 +60,10 @@ export class UsersService {
     async delete (userId: string): Promise<void> {
         const result = await this.usersRepository.delete(userId);
         if (result.affected < 1) {
-            throw new NotFoundException();
+            throw new UserNotFoundError();
+        }
+        if (result.affected > 1) {
+            throw new DeleteUserFailedError();
         }
     }
 }

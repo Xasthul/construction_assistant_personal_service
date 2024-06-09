@@ -21,4 +21,6 @@ export class ApplicationErrorCode {
     static userNotFound = 3;
     static userAlreadyAddedToProject = 4;
     static userNotAddedToProject = 5;
+    static wrongOldPassword = 6;
+    static deleteUserFailed = 7;
 }

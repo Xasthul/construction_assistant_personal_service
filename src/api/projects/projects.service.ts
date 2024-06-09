@@ -92,7 +92,10 @@ export class ProjectsService {
             id: projectId,
             createdById: userId,
         });
-        if (result.affected !== 1) {
+        if (result.affected < 1) {
+            throw new ProjectNotFoundError();
+        }
+        if (result.affected > 1) {
             throw new DeleteProjectFailedError();
         }
     }

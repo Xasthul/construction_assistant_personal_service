@@ -6,7 +6,27 @@ export class UserNotFoundError extends ApplicationError {
         super(
             HttpStatus.NOT_FOUND,
             ApplicationErrorCode.userNotFound,
-            "Project not found",
+            "User not found",
+        );
+    }
+}
+
+export class WrongOldPasswordError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.UNAUTHORIZED,
+            ApplicationErrorCode.wrongOldPassword,
+            "Wrong old password",
+        );
+    }
+}
+
+export class DeleteUserFailedError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            ApplicationErrorCode.deleteUserFailed,
+            "Delete user failed",
         );
     }
 }
