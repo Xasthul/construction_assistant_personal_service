@@ -31,4 +31,5 @@ export class ApplicationErrorCode {
     static wrongCredentials = 13;
     static invalidRefreshToken = 14;
     static invalidAccessToken = 15;
+    static cantDeleteCretorFromProject = 16;
 }

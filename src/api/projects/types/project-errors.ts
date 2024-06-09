@@ -40,3 +40,13 @@ export class UserNotAddedToProjectError extends ApplicationError {
         );
     }
 }
+
+export class DeleteCreatorFromProjectError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.FORBIDDEN,
+            ApplicationErrorCode.cantDeleteCretorFromProject,
+            "Can't delete creator from project",
+        );
+    }
+}

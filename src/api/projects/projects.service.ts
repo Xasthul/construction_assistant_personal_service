@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from 'src/domain/models/user.entity';
-import { DeleteProjectFailedError, ProjectNotFoundError, UserAlreadyAddedToProjectError, UserNotAddedToProjectError } from './types/project-errors';
+import { DeleteCreatorFromProjectError, DeleteProjectFailedError, ProjectNotFoundError, UserAlreadyAddedToProjectError, UserNotAddedToProjectError } from './types/project-errors';
 import { UserNotFoundError } from '../users/types/user-errors';
 
 @Injectable()
@@ -149,6 +149,10 @@ export class ProjectsService {
         const userIsAddedToProject = project.users.some(e => e.email === userToDeleteEmail);
         if (!userIsAddedToProject) {
             throw new UserNotAddedToProjectError();
+        }
+        const isUserToDeleteCreator = userToDelete.id === project.createdById;
+        if (isUserToDeleteCreator) {
+            throw new DeleteCreatorFromProjectError();
         }
         project.users = project.users.filter(e => e.id !== userToDelete.id);
         await this.projectRepository.save(project);
