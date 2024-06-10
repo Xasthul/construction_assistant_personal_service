@@ -32,4 +32,5 @@ export class ApplicationErrorCode {
     static invalidRefreshToken = 14;
     static invalidAccessToken = 15;
     static cantDeleteCretorFromProject = 16;
+    static accessToProjectDenied = 17;
 }

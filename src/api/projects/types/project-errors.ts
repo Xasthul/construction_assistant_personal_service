@@ -11,6 +11,16 @@ export class ProjectNotFoundError extends ApplicationError {
     }
 }
 
+export class AccessToProjectDeniedError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.FORBIDDEN,
+            ApplicationErrorCode.accessToProjectDenied,
+            "User does not have access to this project",
+        );
+    }
+}
+
 export class DeleteProjectFailedError extends ApplicationError {
     constructor() {
         super(

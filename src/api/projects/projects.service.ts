@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from 'src/domain/models/user.entity';
-import { DeleteCreatorFromProjectError, DeleteProjectFailedError, ProjectNotFoundError, UserAlreadyAddedToProjectError, UserNotAddedToProjectError } from './types/project-errors';
+import { AccessToProjectDeniedError, DeleteCreatorFromProjectError, DeleteProjectFailedError, ProjectNotFoundError, UserAlreadyAddedToProjectError, UserNotAddedToProjectError } from './types/project-errors';
 import { UserNotFoundError } from '../users/types/user-errors';
 
 @Injectable()
@@ -18,24 +18,27 @@ export class ProjectsService {
     ) { }
 
     async findAll (userId: string): Promise<Project[]> {
-        return await this.projectRepository.find({
-            where: {
-                users: [{ id: userId }]
-            },
-            relations: { users: true },
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: { projects: { users: true } }
         });
+        if (!user) {
+            throw new UserNotFoundError();
+        }
+        return user.projects;
     }
 
     async findById (projectId: string, userId: string): Promise<Project> {
         const project = await this.projectRepository.findOne({
-            where: {
-                id: projectId,
-                users: [{ id: userId }]
-            },
+            where: { id: projectId },
             relations: { users: true },
         });
         if (!project) {
             throw new ProjectNotFoundError();
+        }
+        const userHasAccessToProject = project.users.some(e => e.id === userId);
+        if (!userHasAccessToProject) {
+            throw new AccessToProjectDeniedError();
         }
         return project;
     }
