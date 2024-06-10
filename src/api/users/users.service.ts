@@ -15,6 +15,14 @@ export class UsersService {
         private jwtService: JwtService,
     ) { }
 
+    async findById (userId: string): Promise<User> {
+        const user = await this.usersRepository.findOneBy({ id: userId });
+        if (!user) {
+            throw new UserNotFoundError();
+        }
+        return user;
+    }
+
     async changeName (newName: string, userId: string): Promise<void> {
         const user = await this.usersRepository.findOneBy({ id: userId });
         if (!user) {

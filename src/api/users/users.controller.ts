@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Post, Put, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth-guard';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RequestUser } from '../common/decorators/request-user.decorator';
@@ -8,6 +8,8 @@ import { JwtPayload } from '../auth/dto/jwt-payload';
 import { ChangeUserPasswordDto } from './dto/change-user-password.dto';
 import { RefreshTokenItemResource } from './resources/refresh-token-item';
 import { RefreshTokenResource } from './resources/refresh-token';
+import { UserResource } from './resources/user';
+import { UserItemResource } from './resources/user-item';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -15,6 +17,21 @@ import { RefreshTokenResource } from './resources/refresh-token';
 @ApiBearerAuth('JWT-auth')
 export class UsersController {
     constructor(readonly usersService: UsersService) { }
+
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: "Get user's data" })
+    @ApiResponse({ status: HttpStatus.OK, type: UserItemResource })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
+    async findById (
+        @RequestUser() user: JwtPayload,
+    ) {
+        const userData = await this.usersService.findById(user.id,);
+
+        return UserItemResource.from(
+            UserResource.from(userData)
+        );
+    }
 
     @Put('change-name')
     @HttpCode(HttpStatus.OK)
