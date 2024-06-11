@@ -11,7 +11,6 @@ export class CreateStepDto {
 
     @IsString()
     @MaxLength(500)
-    @IsNotEmpty()
     @IsOptional()
     @ApiProperty()
     readonly details: string
@@ -23,7 +22,7 @@ export class CreateStepDto {
     readonly assets: string[]
 
     @IsInt()
-    @Min(0)
+    @Min(1)
     @Max(250)
     @ApiProperty()
     readonly order: number
