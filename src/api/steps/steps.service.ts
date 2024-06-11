@@ -21,7 +21,7 @@ export class StepsService {
         private userRepository: Repository<User>
     ) { }
 
-    async findAll (
+    async findAll(
         projectId: string,
         userId: string
     ): Promise<Step[]> {
@@ -35,7 +35,7 @@ export class StepsService {
         });
     }
 
-    async findById (
+    async findById(
         projectId: string,
         stepId: string,
         userId: string,
@@ -55,7 +55,7 @@ export class StepsService {
         return step;
     }
 
-    async create (
+    async create(
         projectId: string,
         createStepDto: CreateStepDto,
         userId: string
@@ -69,6 +69,8 @@ export class StepsService {
         if (!project) {
             throw new ProjectNotFoundError();
         }
+        await this.verifyStepWithPreviousOrderExists(projectId, createStepDto.order - 1);
+
         const step = new Step();
         step.projectId = project.id;
         step.title = createStepDto.title;
@@ -78,7 +80,7 @@ export class StepsService {
         await this.stepRepository.insert(step);
     }
 
-    async update (
+    async update(
         projectId: string,
         stepId: string,
         updateStepDto: UpdateStepDto,
@@ -96,10 +98,13 @@ export class StepsService {
         if (!step) {
             throw new StepNotFoundError();
         }
+        if (updateStepDto.order) {
+            await this.verifyStepWithPreviousOrderExists(projectId, updateStepDto.order - 1);
+        }
         await this.stepRepository.update(stepId, updateStepDto);
     }
 
-    async delete (
+    async delete(
         projectId: string,
         stepId: string,
         userId: string,
@@ -119,7 +124,7 @@ export class StepsService {
         }
     }
 
-    async complete (
+    async complete(
         projectId: string,
         stepId: string,
         userId: string,
@@ -136,7 +141,7 @@ export class StepsService {
         if (!step) {
             throw new StepNotFoundError();
         }
-        if (step.order !== 0) {
+        if (step.order !== 1) {
             const stepWithPreviousOrder = await this.stepRepository.findOne({
                 where: {
                     project: {
@@ -163,5 +168,17 @@ export class StepsService {
             completedBy: user.name,
         },
         );
+    }
+
+    private async verifyStepWithPreviousOrderExists(projectId: string, previousOrder: number) {
+        const steps = await this.stepRepository.find({
+            where: {
+                projectId: projectId,
+                order: previousOrder,
+            },
+        });
+        if (!steps.length) {
+            throw new StepWithPreviousOrderNotFoundError();
+        }
     }
 }
