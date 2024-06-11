@@ -33,4 +33,5 @@ export class ApplicationErrorCode {
     static invalidAccessToken = 15;
     static cantDeleteCretorFromProject = 16;
     static accessToProjectDenied = 17;
+    static noStepsWithPreviousOrderFound = 18;
 }

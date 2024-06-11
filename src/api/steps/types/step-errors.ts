@@ -24,9 +24,19 @@ export class DeleteStepFailedError extends ApplicationError {
 export class StepWithPreviousOrderNotFoundError extends ApplicationError {
     constructor() {
         super(
-            HttpStatus.INTERNAL_SERVER_ERROR,
+            HttpStatus.FORBIDDEN,
             ApplicationErrorCode.stepWithPreviousOrderNotFound,
             "Step with previous order not found",
+        );
+    }
+}
+
+export class NoStepsWithPreviousOrderFoundError extends ApplicationError {
+    constructor() {
+        super(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            ApplicationErrorCode.noStepsWithPreviousOrderFound,
+            "No steps with previous order found",
         );
     }
 }

@@ -6,7 +6,7 @@ import { CreateStepDto } from './dto/create-step.dto';
 import { UpdateStepDto } from './dto/update-step.dto';
 import { Project } from 'src/domain/models/project.entity';
 import { User } from 'src/domain/models/user.entity';
-import { DeleteStepFailedError, PreviousStepNotCompletedError, StepNotFoundError, StepWithPreviousOrderNotFoundError } from './types/step-errors';
+import { DeleteStepFailedError, NoStepsWithPreviousOrderFoundError, PreviousStepNotCompletedError, StepNotFoundError, StepWithPreviousOrderNotFoundError } from './types/step-errors';
 import { ProjectNotFoundError } from '../projects/types/project-errors';
 import { UserNotFoundError } from '../users/types/user-errors';
 
@@ -142,7 +142,7 @@ export class StepsService {
             throw new StepNotFoundError();
         }
         if (step.order !== 1) {
-            const stepWithPreviousOrder = await this.stepRepository.findOne({
+            const stepsWithPreviousOrder = await this.stepRepository.find({
                 where: {
                     project: {
                         id: projectId,
@@ -151,10 +151,11 @@ export class StepsService {
                     order: step.order - 1,
                 },
             });
-            if (!stepWithPreviousOrder) {
-                throw new StepWithPreviousOrderNotFoundError();
+            if (!stepsWithPreviousOrder.length) {
+                throw new NoStepsWithPreviousOrderFoundError();
             }
-            if (!stepWithPreviousOrder.isCompleted) {
+            const allPreviousStepsCompelted = stepsWithPreviousOrder.every((step) => step.isCompleted);
+            if (!allPreviousStepsCompelted) {
                 throw new PreviousStepNotCompletedError();
             }
         }
