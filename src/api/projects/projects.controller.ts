@@ -25,14 +25,10 @@ export class ProjectsController {
     @ApiOperation({ summary: "Get all user's projects" })
     @ApiResponse({ status: HttpStatus.OK, type: ProjectItemsResource })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "User not found" })
-    async findAll (@RequestUser() user: JwtPayload) {
-        const projects = await this.projectsService.findAll(user.id);
+    async findAll(@RequestUser() user: JwtPayload) {
+        const projectResourceArray = await this.projectsService.findAll(user.id);
 
-        return ProjectItemsResource.from(
-            projects.map(
-                (project) => ProjectResource.from(project),
-            ),
-        );
+        return ProjectItemsResource.from(projectResourceArray);
     }
 
     @Get(':projectId')
@@ -40,15 +36,13 @@ export class ProjectsController {
     @ApiOperation({ summary: "Get user's project by id" })
     @ApiResponse({ status: HttpStatus.OK, type: ProjectItemResource })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Project not found" })
-    async findById (
+    async findById(
         @Param() projectIdParam: ProjectIdParam,
         @RequestUser() user: JwtPayload,
     ) {
-        const project = await this.projectsService.findById(projectIdParam.projectId, user.id);
+        const projectResource = await this.projectsService.findById(projectIdParam.projectId, user.id);
 
-        return ProjectItemResource.from(
-            ProjectResource.from(project)
-        );
+        return ProjectItemResource.from(projectResource);
     }
 
     @Post('create')
@@ -56,7 +50,7 @@ export class ProjectsController {
     @ApiOperation({ summary: "Create new project" })
     @ApiResponse({ status: HttpStatus.CREATED })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: "User not found" })
-    create (
+    create(
         @Body() createProjectDto: CreateProjectDto,
         @RequestUser() user: JwtPayload,
     ) {
@@ -68,7 +62,7 @@ export class ProjectsController {
     @ApiOperation({ summary: "Update user's project" })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
-    update (
+    update(
         @Param() projectIdParam: ProjectIdParam,
         @Body() updateProjectDto: UpdateProjectDto,
         @RequestUser() user: JwtPayload,
@@ -81,7 +75,7 @@ export class ProjectsController {
     @ApiOperation({ summary: "Remove user's project" })
     @ApiResponse({ status: HttpStatus.OK })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
-    delete (
+    delete(
         @Param() projectIdParam: ProjectIdParam,
         @RequestUser() user: JwtPayload,
     ) {
@@ -95,7 +89,7 @@ export class ProjectsController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
     @ApiResponse({ status: HttpStatus.CONFLICT, description: 'User has been already added' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-    addUser (
+    addUser(
         @Param() projectIdParam: ProjectIdParam,
         @Body() addUserToProjectDto: AddUserToProjectDto,
         @RequestUser() user: JwtPayload,
@@ -114,7 +108,7 @@ export class ProjectsController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Project with such id not found' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found in project' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
-    deleteUser (
+    deleteUser(
         @Param() projectIdParam: ProjectIdParam,
         @Body() deleteUserFromProjectDto: DeleteUserFromProjectDto,
         @RequestUser() user: JwtPayload,

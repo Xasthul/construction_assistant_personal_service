@@ -7,6 +7,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from 'src/domain/models/user.entity';
 import { AccessToProjectDeniedError, DeleteCreatorFromProjectError, DeleteProjectFailedError, ProjectNotFoundError, UserAlreadyAddedToProjectError, UserNotAddedToProjectError } from './types/project-errors';
 import { UserNotFoundError } from '../users/types/user-errors';
+import { ProjectResource } from './resources/project';
 
 @Injectable()
 export class ProjectsService {
@@ -17,7 +18,7 @@ export class ProjectsService {
         private userRepository: Repository<User>,
     ) { }
 
-    async findAll (userId: string): Promise<Project[]> {
+    async findAll(userId: string): Promise<ProjectResource[]> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
             relations: { projects: { users: true } }
@@ -25,10 +26,15 @@ export class ProjectsService {
         if (!user) {
             throw new UserNotFoundError();
         }
-        return user.projects;
+        return user.projects.map(
+            (project) => {
+                const isOwner = project.createdById === user.id;
+                return new ProjectResource(project, isOwner);
+            },
+        );
     }
 
-    async findById (projectId: string, userId: string): Promise<Project> {
+    async findById(projectId: string, userId: string): Promise<ProjectResource> {
         const project = await this.projectRepository.findOne({
             where: { id: projectId },
             relations: { users: true },
@@ -40,10 +46,11 @@ export class ProjectsService {
         if (!userHasAccessToProject) {
             throw new AccessToProjectDeniedError();
         }
-        return project;
+        const isOwner = project.createdById === userId;
+        return new ProjectResource(project, isOwner);
     }
 
-    async create (createProjectDto: CreateProjectDto, userId: string): Promise<void> {
+    async create(createProjectDto: CreateProjectDto, userId: string): Promise<void> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
             relations: { projects: true },
@@ -60,7 +67,7 @@ export class ProjectsService {
         await this.projectRepository.save(project);
     }
 
-    async update (
+    async update(
         projectId: string,
         updateProjectDto: UpdateProjectDto,
         userId: string,
@@ -77,7 +84,7 @@ export class ProjectsService {
         await this.projectRepository.update(projectId, updateProjectDto);
     }
 
-    async delete (projectId: string, userId: string): Promise<void> {
+    async delete(projectId: string, userId: string): Promise<void> {
         const project = await this.projectRepository.findOne({
             where: {
                 id: projectId,
@@ -103,7 +110,7 @@ export class ProjectsService {
         }
     }
 
-    async addUser (
+    async addUser(
         projectId: string,
         userToAddEmail: string,
         userId: string,
@@ -130,7 +137,7 @@ export class ProjectsService {
         await this.projectRepository.save(project);
     }
 
-    async deleteUser (
+    async deleteUser(
         projectId: string,
         userToDeleteEmail: string,
         userId: string,

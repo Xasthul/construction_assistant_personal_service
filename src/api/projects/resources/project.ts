@@ -16,17 +16,17 @@ export class ProjectResource {
     })
     readonly users: UserResource[]
 
-    @ApiProperty({ description: 'Project owner id' })
-    readonly createdBy: string
+    @ApiProperty()
+    readonly isOwner: boolean
 
-    constructor(project: Project) {
+    constructor(project: Project, isOwner: boolean) {
         this.id = project.id;
         this.title = project.title;
         this.users = project.users.map(user => UserResource.from(user));
-        this.createdBy = project.createdById;
+        this.isOwner = isOwner;
     }
 
-    static from (project: Project): ProjectResource {
-        return new ProjectResource(project);
+    static from(project: Project, isOwner: boolean): ProjectResource {
+        return new ProjectResource(project, isOwner);
     }
 }
