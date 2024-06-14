@@ -16,7 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         secret: configService.get<string>('jwtSecret'),
       }),
       inject: [ConfigService]
-    })
+    }),
   ],
   providers: [UsersService],
   controllers: [UsersController],
