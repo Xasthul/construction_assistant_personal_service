@@ -6,7 +6,7 @@ import { CreateStepDto } from './dto/create-step.dto';
 import { UpdateStepDto } from './dto/update-step.dto';
 import { Project } from 'src/domain/models/project.entity';
 import { User } from 'src/domain/models/user.entity';
-import { DeleteStepFailedError, NoStepsWithPreviousOrderFoundError, PreviousStepNotCompletedError, StepNotFoundError, StepWithPreviousOrderNotFoundError } from './types/step-errors';
+import { DeleteStepFailedError, PreviousStepNotCompletedError, StepNotFoundError, StepWithPreviousOrderNotFoundError } from './types/step-errors';
 import { ProjectNotFoundError } from '../projects/types/project-errors';
 import { UserNotFoundError } from '../users/types/user-errors';
 
@@ -131,7 +131,7 @@ export class StepsService {
         stepId: string,
         userId: string,
     ): Promise<void> {
-        const step = await this.stepRepository.findOne({
+        const stepToComplete = await this.stepRepository.findOne({
             where: {
                 project: {
                     id: projectId,
@@ -140,25 +140,26 @@ export class StepsService {
                 id: stepId,
             },
         });
-        if (!step) {
+        if (!stepToComplete) {
             throw new StepNotFoundError();
         }
-        if (step.order > 1) {
-            const stepsWithPreviousOrder = await this.stepRepository.find({
+        if (stepToComplete.order > 1) {
+            const steps = await this.stepRepository.find({
                 where: {
                     project: {
                         id: projectId,
                         users: [{ id: userId }],
                     },
-                    order: step.order - 1,
                 },
             });
-            if (!stepsWithPreviousOrder.length) {
-                throw new NoStepsWithPreviousOrderFoundError();
-            }
-            const allPreviousStepsCompelted = stepsWithPreviousOrder.every((step) => step.isCompleted);
-            if (!allPreviousStepsCompelted) {
-                throw new PreviousStepNotCompletedError();
+            const previousSteps = steps.filter((step) => step.order < stepToComplete.order);
+            previousSteps.sort((a, b) => b.order - a.order);
+            if (previousSteps.length) {
+                for (let step of previousSteps) {
+                    if (!step.isCompleted) {
+                        throw new PreviousStepNotCompletedError();
+                    }
+                }
             }
         }
         const user = await this.userRepository.findOneBy({ id: userId });
