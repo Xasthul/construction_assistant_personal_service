@@ -31,16 +31,6 @@ export class StepWithPreviousOrderNotFoundError extends ApplicationError {
     }
 }
 
-export class NoStepsWithPreviousOrderFoundError extends ApplicationError {
-    constructor() {
-        super(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            ApplicationErrorCode.noStepsWithPreviousOrderFound,
-            "No steps with previous order found",
-        );
-    }
-}
-
 export class PreviousStepNotCompletedError extends ApplicationError {
     constructor() {
         super(
