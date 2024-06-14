@@ -69,7 +69,9 @@ export class StepsService {
         if (!project) {
             throw new ProjectNotFoundError();
         }
-        await this.verifyStepWithPreviousOrderExists(projectId, createStepDto.order - 1);
+        if (createStepDto.order > 1) {
+            await this.verifyStepWithPreviousOrderExists(projectId, createStepDto.order - 1);
+        }
 
         const step = new Step();
         step.projectId = project.id;
@@ -98,7 +100,7 @@ export class StepsService {
         if (!step) {
             throw new StepNotFoundError();
         }
-        if (updateStepDto.order) {
+        if (updateStepDto.order && updateStepDto.order > 1) {
             await this.verifyStepWithPreviousOrderExists(projectId, updateStepDto.order - 1);
         }
         await this.stepRepository.update(stepId, updateStepDto);
@@ -141,7 +143,7 @@ export class StepsService {
         if (!step) {
             throw new StepNotFoundError();
         }
-        if (step.order !== 1) {
+        if (step.order > 1) {
             const stepsWithPreviousOrder = await this.stepRepository.find({
                 where: {
                     project: {
